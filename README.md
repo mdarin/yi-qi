@@ -33,3 +33,8 @@ yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,updat
 
 для справок, традиционно
 yiqi.pl --help
+
+Нет времени объяснять! 
+Скорей, копируй и сразу вставляй команду в командную строку!
+Смотри как жить стало лучше, жить стало веслей!
+./yiqi.pl --module=yiqitest --topics=insert,delete,update,move/to,move/from
