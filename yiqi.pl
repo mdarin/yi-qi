@@ -337,37 +337,34 @@ sub generate_suite_mod_fun_clause {
 
 sub generate_t_mod_head {
 	my($fout, $module) = @_;
-	print $fout "%%%%----------------------------------------------\n";
-	print $fout "%%% Module: API $module module for test suite\n";
-	print $fout "%%% Desc: \n";
-	print $fout "%%% Author:\n";
-	print $fout "%%% Autogen: Yi qi\n";
-	print $fout "%%% wiki page -> [link to wiki or page name]\n";
-	print $fout "%%%%----------------------------------------------\n";
-	print $fout "-module(t_$module).\n";
-	print $fout "-compile([export_all]).\n";
-	print $fout "\n";
-	print $fout "% Команды управления подсистемой Добавьте название\n";
-	print $fout "\n";
+	my $head_fname = File::Spec->catfile($t_module_dir, "head.tpl");
+	my $fin;
+	open $fin, "<$head_fname"
+	or die "Can't open $head_fname file:$!";
+	map { chomp; 
+		s/\$\{module\}/$module/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $head_fname file:$!";
 }
 
 sub generate_t_mod_fun_clause {
 	my($fout, $module, $topic) = @_;
 	my $function = basename $topic;
-	print $fout "% MQTT pub:  /<CID>/$module/$topic\n";
-	print $fout "% MQTT sub:  /<CID>/$module/res/$topic\n";
-	print $fout "$function(Mqtt) -> %TODO: Довьте требуетмые аргументы фукнции\n";
-	print $fout "	Outgoing = <<\"$module/$topic\">>,\n";
-	print $fout "	Incomeing = <<\"$module/res/$topic\">>,\n";
-	print $fout "	tst:sub(Mqtt, Incomeing),\n";
-	print $fout "	Payload = [\n";
-	print $fout "		%TODO:insert your data here as a proplilst {key, Value} pairs\n";
-	print $fout "	],\n";
-	print $fout "	Reply = tst:pubr(Mqtt, Outgoing, Payload),\n";
-	print $fout "	ct:log(\"::reply -> ~p~n\", [Reply]),\n";
-	print $fout "	Reply.\n";
-	print $fout "\n";
-	print $fout "\n";
+	my $clause_fname = File::Spec->catfile($t_module_dir, "clause.tpl");
+	my $fin;
+	open $fin, "<$clause_fname"
+	or die "Can't open $clause_fname file:$!";
+	map { chomp; 
+		#TODO: хэш и цикл
+		s/\$\{module\}/$module/;
+		s/\S\{topic\}/$topic/;
+		s/\S\{function\}/$function/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $clause_fname file:$!";
 }
 
 
@@ -376,73 +373,47 @@ sub generate_t_mod_fun_clause {
 #
 
 sub generate_handler_mod_head {
-	my($fout,$module,$topic) = @_;
-	print $fout "%%%%----------------------------------------------\n";
-	print $fout "%%% Module: $module \n";
-	print $fout "%%% Description:\n";
-	print $fout "%%% Author:\n";
-	print $fout "%%% Autogen: Yi qi\n";
-	print $fout "%%% wiki page -> [link to wiki or page name]\n";
-	print $fout "%%%%----------------------------------------------\n";
-	print $fout "-module($module).\n";
-	print $fout "-compile([export_all]).\n";
-	print $fout "\n";
-	print $fout "-include(\"cargo_error.hrl\").\n";
-	print $fout "\n";
-	print $fout "% Подсистема TODO: Довьте описание реализуемой подсистемы \n";
-	print $fout "% MQTT pub: /<Cid>/${module}\n";
-	print $fout "% MQTT sub: /<Cid>/res/${module}\n";
-	print $fout "\n";
-	print $fout "\n";
+	my($fout,$module) = @_;
+	my $head_fname = File::Spec->catfile($module_dir, "head.tpl");
+	my $fin;
+	open $fin, "<$head_fname"
+	or die "Can't open $head_fname file:$!";
+	map { chomp; 
+		s/\$\{module\}/$module/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $head_fname file:$!";
 }
 
 sub generate_handler_mod_fun_clause {
 	my($fout,$module,$topic) = @_;
-	print $fout "%%---------------------------------------------------------------\n";
-	print $fout "%% MQTT pub : /<Cid>/${module}/${topic}\n";
-	print $fout "%% description: [[Discription]]\n";
-	print $fout "message(SessionID, <<\"${topic}\">> = Topic, Payload) ->\n";
-	print $fout "\n";
-	print $fout "	lager:info(\"~p:message ::topic -> ~p~n\", [?MODULE, Topic]),\n";
-	print $fout "	lager:info(\"~p:message ::payload -> ~p~n\", [?MODULE, Payload]),\n";
-	print $fout "\n";
-	print $fout "	% поулчить данные из запроса\n";
-	print $fout "	% прверить валидность данных\n";
-	print $fout "	% сформировать паттерн для решиющих правил формирования ответа\n";
-	print $fout "	%% формируем ответ как проплист\n";
-	print $fout "	% ------------------------------\n";
-	print $fout "	% > ответ на запрос процедуры завершения регистрации\n";
-	print $fout "	% -------------------------------\n";
-	print $fout "	% ответить\n";
-	print $fout "	common:ok();\n";
-	print $fout "\n";
-	print $fout "\n";
+	my $clause_fname = File::Spec->catfile($module_dir, "clause.tpl");
+	my $fin;
+	open $fin, "<$clause_fname"
+	or die "Can't open $clause_fname file:$!";
+	map { chomp; 
+		#TODO: хэш и цикл
+		s/\$\{module\}/$module/;
+		s/\S\{topic}/$topic/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $clause_fname file:$!";
 }
+
 sub generate_handler_mod_last_fun_clause {
 	my($fout,$module,$topic) = @_;
-	print $fout "%%---------------------------------------------------------------\n";
-	print $fout "%% MQTT pub : /<Cid>/${module}/${topic}\n";
-	print $fout "%% description: [[Discription]]\n";
-	print $fout "message(SessionID, <<\"${topic}\">> = Topic, Payload) ->\n";
-	print $fout "\n";
-	print $fout "	lager:info(\"~p:message ::topic -> ~p~n\", [?MODULE, Topic]),\n";
-	print $fout " lager:info(\"~p:message ::payload -> ~p~n\", [?MODULE, Payload]),\n";
-	print $fout "\n";
-	print $fout "	% поулчить данные из запроса\n";
-	print $fout "	% прверить валидность данных\n";
-	print $fout "	% сформировать паттерн для решиющих правил формирования ответа\n";
-	print $fout "	%% формируем ответ как проплист\n";
-	print $fout "	% ------------------------------\n";
-	print $fout "	% > ответ на запрос процедуры завершения регистрации\n";
-	print $fout "	% -------------------------------\n";
-	print $fout "	% ответить\n";
-	print $fout "	common:ok().\n";
-	print $fout "	%% ^^^^^^^^ завершающий обработчик ^^^^^^^^^\n";
-	print $fout "\n";
-	print $fout "\n";
-	print $fout "%%\n";
-	print $fout "%% Internals\n";
-	print $fout "%\n";
-	print $fout "\n";
-	print $fout "\n";
+	my $clause_fname = File::Spec->catfile($module_dir, "last_clause.tpl");
+	my $fin;
+	open $fin, "<$clause_fname"
+	or die "Can't open $clause_fname file:$!";
+	map { chomp; 
+		#TODO: хэш и цикл
+		s/\$\{module\}/$module/;
+		s/\S\{topic}/$topic/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $clause_fname file:$!";
 }
