@@ -1,40 +1,53 @@
-#Yi qi
+# Yi qi
 Инструмент генерирует, насыщает исходными кодами из шаблонов
 и раскладывает по нужным каталогам файлы описывающие модуль вновь 
 создаваемой подсистемы.
 
-##Структура генерируемых данных:
+## Структура генерируемых данных:
 * Файл модуля тестирования
-	CARGOROOT/test/<module>_SUITE.erl
+	CARGOROOT/test/*module*_SUITE.erl
 * Файл модуля API функций для тестов
-	CARGOROOT/lib/t_<module>.erl
+	CARGOROOT/lib/t_*module*.erl
 * Файл модуля обработчика каналов, реализующего функционал подсистемы
-	CARGOROOT/lib/<module>.erl
+	CARGOROOT/lib/*module*.erl
 
 Все файлы наполенны исходными кодами из шаблонов и сгенерырованы согласно 
 передынных праметров настроек герератора
+
+```
 Пример иллюстрирующий настрйоку генератор для гипотетического модуля yiqitest
-будут сгенерирвоаны файлы
+
+Будут сгенерирвоаны файлы
+
 /abs/path/to/cargo/test/yiqitest_SUITE.erl
 /abs/path/to/cargo/lib/t_yiqitest.erl
 /abs/path/to/cargo/lib/yiqitest.erl
 
 Также, зададим следующие обработчики каналов(маршруты)
+
 insert
 delete
 update
 move/from
 move/to
-Эти мена тем(каналов или topics) появятся в соответсующих файлах с вариациями зависящими от контекста
- 
-yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
+```
 
-В результате выполнения программы должны появится указанные файлы содеражщие заготовки кода для дальнейшей разработки
+Эти имена темы каналов или topics появятся в соответсующих файлах
+с вариациями зависящими от контекста
+
+
+> yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
+
+В результате выполнения программы должны появится указанные файлы 
+содеражщие заготовки кода для дальнейшей разработки
 
 для справок, традиционно
-yiqi.pl --help
+
+> yiqi.pl --help
 
 Нет времени объяснять! 
 Скорей, копируй и сразу вставляй команду в командную строку!
 Смотри как жить стало лучше, жить стало веслей!
-./yiqi.pl --module=yiqitest --topics=insert,delete,update,move/to,move/from
+
+
+> ./yiqi.pl --module=yiqitest --topics=insert,delete,update,move/to,move/from
