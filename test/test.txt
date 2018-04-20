@@ -1,0 +1,1 @@
+./yiqi.pl --module=prescalere --topics=set,reset,configure/timer,configure/output,configure/led/red,cofigure/led/green,map/relay,map/key >out.erl

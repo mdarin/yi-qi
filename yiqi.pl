@@ -17,35 +17,43 @@ use File::Spec;
 use Getopt::Long;
 use autodie;
 
-print "hello yiqi\n";
 
 my $usage = "yiqi [options]\n\n";
 
 # получить аргументы командной строки
 my %options;
 GetOptions("module=s" => \$options{"module"},
-						"topics=s" => \$options{"topics"},
-						"cargo-root=s" => \$options{"cargo-root"},
-						"log=s" => \$options{"log"},
-						"help" => \$options{"help"},
-						"usage" => \$options{"usage"},
-						"version" => \$options{"version"},
-						"silent" => \$options{"silent"},
-						"verbose" => \$options{"verbose"},
-          )
-  or die("$usage");
+			"topics=s" => \$options{"topics"},
+			"cargo-root=s" => \$options{"cargo-root"},
+			"log=s" => \$options{"log"},
+			"help" => \$options{"help"},
+			"usage" => \$options{"usage"},
+			"version" => \$options{"version"},
+			"silent" => \$options{"silent"},
+			"verbose" => \$options{"verbose"},
+) or die("$usage");
 
-print $options{"module"} . "\n";
-print $options{"topics"} . "\n";
+#print $options{"module"} . "\n";
+#print $options{"topics"} . "\n";
 
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
+# каталог с шаблонами
+my $templates_dir = File::Spec->catfile(dirname($0), "templates");
+my $t_module_dir = File::Spec->catfile($templates_dir, "t_module");
+my $module_suite_dir = File::Spec->catfile($templates_dir, "module_SUITE");
+my $module_dir = File::Spec->catfile($templates_dir, "module");
 
-#foreach my $topic (@topics) {
-#	print "$topic\n";
-#}
+print "module: $module\n";
 
-print basename "move/to" . "\n";
+foreach my $topic (@topics) {
+	print "topic: $topic\n";
+}
+print "templates: $templates_dir\n";
+print "t_module: $t_module_dir\n";
+print "module_SUITE: $module_suite_dir\n";
+print "module: $module_dir\n";
+#print basename "move/to" . "\n";
 
 
 # получить список обработчиков
@@ -63,18 +71,18 @@ print basename "move/to" . "\n";
 &generate_suite_mod_end_suite (stdout, $module, $topic);
 # сгенерировать инициализации для групп
 &generate_suite_mod_init_group (stdout, $module, $topic);
-&generate_suite_mod_init_last_group (stdout, $module, $topic);
+&generate_suite_mod_last_init_group (stdout, $module, $topic);
 # сгенерировать окончания для групп
 &generate_suite_mod_end_group (stdout, $module, $topic);
-&generate_suite_mod_end_last_group (stdout, $module, $topic);
+&generate_suite_mod_last_end_group (stdout, $module, $topic);
 foreach my $topic (@topics) { 
 	# сгенерировать инициализации для тестов для каждой группы
 	&generate_suite_mod_init_testcase (stdout, $module, $topic);
 	# сгенерировать окончания для тестов для каждой группы
 	&generate_suite_mod_end_testcase (stdout, $module, $topic);
 }
-&generate_suite_mod_init_last_testcase (stdout, $module, $topic);
-&generate_suite_mod_end_last_testcase (stdout, $module, $topic);
+&generate_suite_mod_last_init_testcase (stdout, $module, $topic);
+&generate_suite_mod_last_end_testcase (stdout, $module, $topic);
 foreach my $topic (@topics) {
 	# сгенеровароть заготовки тестов
 	&generate_suite_mod_fun_clause (stdout, $module, basename $topic);
@@ -196,7 +204,7 @@ sub generate_suite_mod_init_group {
 	print $fout "\n";
 }
 
-sub generate_suite_mod_init_last_group {
+sub generate_suite_mod_last_init_group {
 	my($fout, $module) = @_;
 	print $fout "% othor\n";
 	print $fout "init_per_group(_, Config) ->\n";
@@ -219,7 +227,7 @@ sub generate_suite_mod_init_testcase {
 	print $fout "\n";
 }
 
-sub generate_suite_mod_init_last_testcase {
+sub generate_suite_mod_last_init_testcase {
 	my($fout, $module) = @_;
 	print $fout "% other\n";
 	print $fout "init_per_testcase(_, Config) ->\n";
@@ -242,7 +250,7 @@ sub generate_suite_mod_end_testcase {
 	print $fout "\n";
 }
 
-sub generate_suite_mod_end_last_testcase {
+sub generate_suite_mod_last_end_testcase {
 	my($fout, $module) = @_;
 	print $fout "% othor\n";
 	print $fout "end_per_testcase(_, Config) ->\n";
@@ -265,7 +273,7 @@ sub generate_suite_mod_end_group {
 	print $fout "\n";
 }
 
-sub generate_suite_mod_end_last_group {
+sub generate_suite_mod_last_end_group {
 	my($fout, $module) = @_;
 	print $fout "% othor\n";
 	print $fout "end_per_group(_, Config) ->\n";
