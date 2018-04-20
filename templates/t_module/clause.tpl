@@ -9,7 +9,7 @@ ${function}(Mqtt) ->
 		%TODO:insert your data here as a proplilst {key, Value} pairs
 	],
 	Reply = tst:pubr(Mqtt, Outgoing, Payload),
-	ct:log(\"::reply -> ~p~n\", [Reply]),
+	ct:log("::reply -> ~p~n", [Reply]),
 	Reply.
 	
 	

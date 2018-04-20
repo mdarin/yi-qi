@@ -8,7 +8,7 @@
 -module(${module}).
 -compile([export_all]).
 	
--include(\"cargo_error.hrl\").
+-include("cargo_error.hrl").
 	
 % Подсистема TODO: Добавьте описание реализуемой подсистемы 
 % MQTT pub: /<Cid>/${module}
