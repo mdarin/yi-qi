@@ -165,6 +165,7 @@ sub generate_suite_mod_group_testcases {
 		print $fout "		" . basename $topic . "\_ok,\n";
 	}
 	print $fout "		" . basename $last_topic . "\_ok\n";
+	push @$topics, $last_topic;
 }
 
 sub generate_suite_mod_init_suite {
@@ -214,6 +215,7 @@ sub generate_suite_mod_last_init_group {
 
 sub generate_suite_mod_init_testcase {
 	my($fout, $module, $topic) = @_;
+	my $testcase = basename $topic;
 	my $init_fname = File::Spec->catfile($module_suite_dir, "init_testcase.tpl");
 	my $fin;
 	open $fin, "<$init_fname"
@@ -221,7 +223,7 @@ sub generate_suite_mod_init_testcase {
 	map { chomp; 
 		#TODO: хэш и цикл
 		s/\$\{module\}/$module/;
-		s/\$\{topic\}/$module/;
+		s/\$\{testcase\}/$testcase/;
 		print $fout "$_\n";	
 	} <$fin>;
 	close $fin
@@ -237,7 +239,6 @@ sub generate_suite_mod_last_init_testcase {
 	map { chomp; 
 		#TODO: хэш и цикл
 		s/\$\{module\}/$module/;
-		s/\$\{topic\}/$module/;
 		print $fout "$_\n";	
 	} <$fin>;
 	close $fin
@@ -246,6 +247,7 @@ sub generate_suite_mod_last_init_testcase {
 
 sub generate_suite_mod_end_testcase {
 	my($fout, $module, $topic) = @_;
+	my $testcase = basename $topic;
 	my $end_fname = File::Spec->catfile($module_suite_dir, "end_testcase.tpl");
 	my $fin;
 	open $fin, "<$end_fname"
@@ -253,6 +255,7 @@ sub generate_suite_mod_end_testcase {
 	map { chomp; 
 		#TODO: хэш и цикл
 		s/\$\{module\}/$module/;
+		s/\$\{testcase\}/$testcase/;
 		print $fout "$_\n";	
 	} <$fin>;
 	close $fin
@@ -323,6 +326,7 @@ sub generate_suite_mod_end_suite {
 sub generate_suite_mod_fun_clause {
 	my ($fout, $module, $topic) = @_;
 	my $function = basename $topic;
+	my $testcase = $function;
 	my $caseclause_fname = File::Spec->catfile($module_suite_dir, "case_clause.tpl");
 	my $fin;
 	open $fin, "<$caseclause_fname"
@@ -330,7 +334,7 @@ sub generate_suite_mod_fun_clause {
 	map { chomp; 
 		#TODO: хэш и цикл
 		s/\$\{module\}/$module/;
-		s/\S\{topic\}/$topic/;
+		s/\S\{testcase\}/$testcase/;
 		s/\S\{function\}/$function/;
 		print $fout "$_\n";	
 	} <$fin>;
