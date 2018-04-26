@@ -11,7 +11,7 @@
 # 
 ##
 use warnings;
-#use strict;
+use strict;
 use File::Basename qw(basename dirname);
 use File::Spec;
 use Getopt::Long;
@@ -67,27 +67,27 @@ my $suite_fout;
 open $suite_fout, ">$suite_fname"
 	or die "Can't open $suite_fname file:$!";
 # вывести зоголовок
-&generate_suite_mod_head ($suite_fout, $module, $topic);
+&generate_suite_mod_head ($suite_fout, $module);
 # сгенерировать инициализацию перечня групп и тестов
 &generate_suite_mod_groups ($suite_fout, $module,\@topics);
 # сгенерировать инициализацию для всего модуля теста
-&generate_suite_mod_init_suite ($suite_fout, $module, $topic);
+&generate_suite_mod_init_suite ($suite_fout, $module);
 # сгенерировать инициализации для групп
-&generate_suite_mod_init_group ($suite_fout, $module, $topic);
-&generate_suite_mod_last_init_group ($suite_fout, $module, $topic);
+&generate_suite_mod_init_group ($suite_fout, $module);
+&generate_suite_mod_last_init_group ($suite_fout, $module);
 # сгенерировать окончания для групп
-&generate_suite_mod_end_group ($suite_fout, $module, $topic);
-&generate_suite_mod_last_end_group ($suite_fout, $module, $topic);
+&generate_suite_mod_end_group ($suite_fout, $module);
+&generate_suite_mod_last_end_group ($suite_fout, $module);
 foreach my $topic (@topics) { 
 	# сгенерировать инициализации для тестов для каждой группы
 	&generate_suite_mod_init_testcase ($suite_fout, $module, $topic);
 	# сгенерировать окончания для тестов для каждой группы
 	&generate_suite_mod_end_testcase ($suite_fout, $module, $topic);
 }
-&generate_suite_mod_last_init_testcase ($suite_fout, $module, $topic);
-&generate_suite_mod_last_end_testcase ($suite_fout, $module, $topic);
+&generate_suite_mod_last_init_testcase ($suite_fout, $module);
+&generate_suite_mod_last_end_testcase ($suite_fout, $module);
 # сгенерировать окончание для всего модуля теста
-&generate_suite_mod_end_suite ($suite_fout, $module, $topic);
+&generate_suite_mod_end_suite ($suite_fout, $module);
 foreach my $topic (@topics) {
 	# сгенеровароть заготовки тестов
 	&generate_suite_mod_fun_clause ($suite_fout, $module, basename $topic);
@@ -119,7 +119,7 @@ close $test_fout
 #	Алгоритм
 #	открыть файл
 my $handler_fname = File::Spec->catfile($cargo_root_full_path, "$module.erl");
-my $hahdler_fout;
+my $handler_fout;
 open $handler_fout, ">$handler_fname"
 	or die "Can't open $handler_fname file:$!";
 #	вывести заголовок
