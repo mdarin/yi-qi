@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #** ------------------------------------------------------------------
-# nam: Yi qi - Template generator for CargoNet project 
+# nam: Yi qi - Pattern generator for CargoNet project 
 # vsn: 0.0.1
 # dsc: This is a devtool  
 # crt: Ср апр 18 17:36:10 MSK 2018
