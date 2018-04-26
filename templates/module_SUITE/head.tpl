@@ -11,6 +11,7 @@
 -module(${module}_SUITE).
 % this header is required
 -include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 -export([all/0]).
 -compile([export_all]).

@@ -55,69 +55,86 @@ print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
 #print basename "move/to" . "\n";
 
+my $cargo_root_full_path = dirname $0;
 
 # получить список обработчиков
 # Файл модуля тестирования
 #	CARGOROOT/test/<module>_SUITE.erl
 # Алгоритм:
 # открыть файл
+my $suite_fname = File::Spec->catfile($cargo_root_full_path, "$module\_SUITE.erl");
+my $suite_fout;
+open $suite_fout, ">$suite_fname"
+	or die "Can't open $suite_fname file:$!";
 # вывести зоголовок
-&generate_suite_mod_head (stdout, $module, $topic);
+&generate_suite_mod_head ($suite_fout, $module, $topic);
 # сгенерировать инициализацию перечня групп и тестов
-&generate_suite_mod_groups (stdout, $module,\@topics);
+&generate_suite_mod_groups ($suite_fout, $module,\@topics);
 # сгенерировать инициализацию для всего модуля теста
-&generate_suite_mod_init_suite (stdout, $module, $topic);
+&generate_suite_mod_init_suite ($suite_fout, $module, $topic);
 # сгенерировать инициализации для групп
-&generate_suite_mod_init_group (stdout, $module, $topic);
-&generate_suite_mod_last_init_group (stdout, $module, $topic);
+&generate_suite_mod_init_group ($suite_fout, $module, $topic);
+&generate_suite_mod_last_init_group ($suite_fout, $module, $topic);
 # сгенерировать окончания для групп
-&generate_suite_mod_end_group (stdout, $module, $topic);
-&generate_suite_mod_last_end_group (stdout, $module, $topic);
+&generate_suite_mod_end_group ($suite_fout, $module, $topic);
+&generate_suite_mod_last_end_group ($suite_fout, $module, $topic);
 foreach my $topic (@topics) { 
 	# сгенерировать инициализации для тестов для каждой группы
-	&generate_suite_mod_init_testcase (stdout, $module, $topic);
+	&generate_suite_mod_init_testcase ($suite_fout, $module, $topic);
 	# сгенерировать окончания для тестов для каждой группы
-	&generate_suite_mod_end_testcase (stdout, $module, $topic);
+	&generate_suite_mod_end_testcase ($suite_fout, $module, $topic);
 }
-&generate_suite_mod_last_init_testcase (stdout, $module, $topic);
-&generate_suite_mod_last_end_testcase (stdout, $module, $topic);
+&generate_suite_mod_last_init_testcase ($suite_fout, $module, $topic);
+&generate_suite_mod_last_end_testcase ($suite_fout, $module, $topic);
 # сгенерировать окончание для всего модуля теста
-&generate_suite_mod_end_suite (stdout, $module, $topic);
+&generate_suite_mod_end_suite ($suite_fout, $module, $topic);
 foreach my $topic (@topics) {
 	# сгенеровароть заготовки тестов
-	&generate_suite_mod_fun_clause (stdout, $module, basename $topic);
+	&generate_suite_mod_fun_clause ($suite_fout, $module, basename $topic);
 }
 # закрыть файл
+close $suite_fout
+	or die "Can't close $suite_fname file:$!";
 
 # Файл модуля API функций для тестов
 #	CARGOROOT/lib/t_<module>.erl
 # Алгоритм
 #	открыть файл
+my $test_fname = File::Spec->catfile($cargo_root_full_path, "t\_$module.erl");
+my $test_fout;
+open $test_fout, ">$test_fname"
+	or die "Can't open $test_fname file:$!";
 # вывести заголовок
-&generate_t_mod_head(stdout, $module);
+&generate_t_mod_head($test_fout, $module);
 foreach my $topic (@topics) {
 	#	сгенеировать функци API к тестируемому модулoю
-	&generate_t_mod_fun_clause(stdout, $module, $topic);
+	&generate_t_mod_fun_clause($test_fout, $module, $topic);
 }
 # зкрыть файл
-
+close $test_fout
+	or die "Can't open $test_fname file:$!";
 
 # Файл модуля обработчика каналов, реализующего функционал подсистемы
 #	CARGOROOT/lib/<module>.erl
 #	Алгоритм
 #	открыть файл
+my $handler_fname = File::Spec->catfile($cargo_root_full_path, "$module.erl");
+my $hahdler_fout;
+open $handler_fout, ">$handler_fname"
+	or die "Can't open $handler_fname file:$!";
 #	вывести заголовок
-&generate_handler_mod_head(stdout, $module); 
-#	сгенеировать функци API к тестируемому модулю
+&generate_handler_mod_head($handler_fout, $module); 
+#	сгенеировать функци обработчки каналов
 my $last_topic = pop @topics;
 foreach my $topic (@topics) {
-	&generate_handler_mod_fun_clause(stdout, $module, $topic);
+	&generate_handler_mod_fun_clause($handler_fout, $module, $topic);
 }
-&generate_handler_mod_last_fun_clause(stdout, $module, $last_topic);
+&generate_handler_mod_last_fun_clause($handler_fout, $module, $last_topic);
 # вернуть обратно последний топик
 push @topics, $last_topic;
 #	зкрыть файл
-
+close $handler_fout
+	or die "Can't close $handler_fname file:$!";
 
 
 ##
