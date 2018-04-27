@@ -1,6 +1,6 @@
 %%---------------------------------------------------------------
-%% MQTT pub : /<Cid>/${module}/${topic}
-%% description: [[Discription]]
+%% << : /<Cid>/${module}/${topic}
+%% description: [[Description]]
 message(SessionID, <<"${topic}">> = Topic, Payload) ->
 
 	lager:info("~p:message ::topic -> ~p~n", [?MODULE, Topic]),

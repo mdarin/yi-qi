@@ -31,13 +31,15 @@ GetOptions("module=s" => \$options{"module"},
 			"version" => \$options{"version"},
 			"silent" => \$options{"silent"},
 			"verbose" => \$options{"verbose"},
-) or die("$usage");
+) or die "$usage";
 
-#print $options{"module"} . "\n";
-#print $options{"topics"} . "\n";
+die $usage 
+	unless defined($options{"module"}) && defined($options{"topics"});
 
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
+
+
 # каталог с шаблонами
 my $templates_dir = File::Spec->catfile(dirname($0), "templates");
 my $t_module_dir = File::Spec->catfile($templates_dir, "t_module");
@@ -49,11 +51,11 @@ print "module: $module\n";
 foreach my $topic (@topics) {
 	print "topic: $topic\n";
 }
+
 print "templates: $templates_dir\n";
 print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
-#print basename "move/to" . "\n";
 
 my $cargo_root_full_path = dirname $0;
 

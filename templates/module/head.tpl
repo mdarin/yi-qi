@@ -11,7 +11,7 @@
 -include("cargo_error.hrl").
 	
 % Подсистема TODO: Добавьте описание реализуемой подсистемы 
-% MQTT pub: /<Cid>/${module}
-% MQTT sub: /<Cid>/res/${module}
+% <<: /<Cid>/${module}
+% >>: /<Cid>/res/${module}
 	
 	
