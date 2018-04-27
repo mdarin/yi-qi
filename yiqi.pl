@@ -18,14 +18,47 @@ use Getopt::Long;
 use autodie;
 
 
-my $usage = "yiqi [options]\n\n";
+my $usage = q(yiqi {option[=param]}
+);
+my $help = q(yiqi 0.0.1 (amd64)
+Использование: yiqi {опция[=значение]}
 
+yiqi — паттерн генератор из шаблонов файлов описывающих подсистемы проекта.
+Основаная цель - минимизация ручнойго копирования и правок при создании
+новых модулей проекта CargoNet. 
+
+Например:
+yiqi --module=yiqitest --topics=top1,top2/subtop,top3/subtop3/ssubtop3
+сгенерирует модули и разместит их в корневом каталоге генератора
+
+Основные параметры и команды:
+  no-test-suite - не устанавливать git
+  no-test-api - не клонировать проект
+  no-handler - не генерировать файл обработчика канала 
+  help - показать это справочное сообщение
+  verbose - максимально информативный вывод
+  silent - без лишних коментариев
+  version - показать версию 
+  usage - показать краткую справку по использованию
+  log=Logfile - задать файл журнала регистрации хода работы
+  cargo-root=Relativpath - задать относительнй каталог проекта HOME/cargo-root 
+		
+
+Дополнительную информацию о доступных командах смотрите в wiki.
+Параметры настройки и синтаксис описаны в wiki.
+Информацию о том, как настроить источники, можно найти в wiki.
+Выбор пакетов и версий описывается через ?.
+В Yi qi есть кротость сестры милосердия и необратимая мощь ревущего поезда.
+);
 # получить аргументы командной строки
 my %options;
 GetOptions("module=s" => \$options{"module"},
 			"topics=s" => \$options{"topics"},
 			"cargo-root=s" => \$options{"cargo-root"},
 			"log=s" => \$options{"log"},
+			"no-handler" => \$options{"no-handler"},
+			"no-test-api" => \$options{"no-test-api"},
+			"no-test-suite" => \$options{"no-test-suite"},
 			"help" => \$options{"help"},
 			"usage" => \$options{"usage"},
 			"version" => \$options{"version"},
@@ -33,12 +66,18 @@ GetOptions("module=s" => \$options{"module"},
 			"verbose" => \$options{"verbose"},
 ) or die "$usage";
 
+die $usage
+	if $options{"usage"};
+
+die $help
+	if $options{"help"};
+
 die $usage 
 	unless defined($options{"module"}) && defined($options{"topics"});
 
+
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
-
 
 # каталог с шаблонами
 my $templates_dir = File::Spec->catfile(dirname($0), "templates");
@@ -48,6 +87,7 @@ my $module_dir = File::Spec->catfile($templates_dir, "module");
 
 print "module: $module\n";
 
+# получить список обработчиков
 foreach my $topic (@topics) {
 	print "topic: $topic\n";
 }
@@ -57,99 +97,108 @@ print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
 
-# получить корень проекта карго
-my $cargo_root_relative = $options{"cargo-root"} || dirname $0; 
-# если путь не задать, генерировать себе в корень
-my $cargo_root_absolute = dirname $0;
-#File::Spec->catfile($ENV{'HOME'}, $cargo_root_relative);
-print "cargo-root-relatiove: " . $cargo_root_relative . "\n";
-print "cargo-root-absoulute: " . $cargo_root_absolute . "\n";
-
-my $srclib_dir =  File::Spec->catfile($cargo_root_absolute, File::Spec->catfile("src", "lib"));
-my $test_dir = File::Spec->catfile($cargo_root_absolute, "test");
-
+# получить корень проекта карго, если путь не задать, генерировать себе в корень
+my $cargo_root = File::Spec->catfile($ENV{'HOME'},$options{"cargo-root"})
+	if defined($options{"cargo-root"});
+my $cargo_root_absolute =  $cargo_root || dirname $0; 
+print "cargo-root: " . $cargo_root_absolute . "\n";
+my $srclib_dir = $cargo_root_absolute;
+my $test_dir = $cargo_root_absolute;
+if (defined($cargo_root)) {
+	$srclib_dir =  File::Spec->catfile($cargo_root_absolute,"src/lib"); 
+			#File::Spec->catfile("src", "lib")); муторно слишком..
+	$test_dir = File::Spec->catfile($cargo_root_absolute, "test");
+}
 print "lib: " . $srclib_dir . "\n";
 print "test: " . $test_dir . "\n";
 
-# получить список обработчиков
-# Файл модуля тестирования
-#	CARGOROOT/test/<module>_SUITE.erl
-# Алгоритм:
-# открыть файл
-my $suite_fname = File::Spec->catfile($cargo_root_absolute, "$module\_SUITE.erl");
-my $suite_fout;
-open $suite_fout, ">$suite_fname"
-	or die "Can't open $suite_fname file:$!";
-# вывести зоголовок
-&generate_suite_mod_head ($suite_fout, $module);
-# сгенерировать инициализацию перечня групп и тестов
-&generate_suite_mod_groups ($suite_fout, $module,\@topics);
-# сгенерировать инициализацию для всего модуля теста
-&generate_suite_mod_init_suite ($suite_fout, $module);
-# сгенерировать инициализации для групп
-&generate_suite_mod_init_group ($suite_fout, $module);
-&generate_suite_mod_last_init_group ($suite_fout, $module);
-# сгенерировать окончания для групп
-&generate_suite_mod_end_group ($suite_fout, $module);
-&generate_suite_mod_last_end_group ($suite_fout, $module);
-foreach my $topic (@topics) { 
-	# сгенерировать инициализации для тестов для каждой группы
-	&generate_suite_mod_init_testcase ($suite_fout, $module, $topic);
-	# сгенерировать окончания для тестов для каждой группы
-	&generate_suite_mod_end_testcase ($suite_fout, $module, $topic);
-}
-&generate_suite_mod_last_init_testcase ($suite_fout, $module);
-&generate_suite_mod_last_end_testcase ($suite_fout, $module);
-# сгенерировать окончание для всего модуля теста
-&generate_suite_mod_end_suite ($suite_fout, $module);
-foreach my $topic (@topics) {
-	# сгенеровароть заготовки тестов
-	&generate_suite_mod_fun_clause ($suite_fout, $module, basename $topic);
-}
-# закрыть файл
-close $suite_fout
-	or die "Can't close $suite_fname file:$!";
 
-# Файл модуля API функций для тестов
-#	CARGOROOT/lib/t_<module>.erl
-# Алгоритм
-#	открыть файл
-my $test_fname = File::Spec->catfile($cargo_root_absolute, "t\_$module.erl");
-my $test_fout;
-open $test_fout, ">$test_fname"
-	or die "Can't open $test_fname file:$!";
-# вывести заголовок
-&generate_t_mod_head($test_fout, $module);
-foreach my $topic (@topics) {
-	#	сгенеировать функци API к тестируемому модулoю
-	&generate_t_mod_fun_clause($test_fout, $module, $topic);
+unless ($options{"no-test-suite"}) {
+	# Файл модуля тестирования
+	#	CARGOROOT/test/<module>_SUITE.erl
+	# Алгоритм:
+	# открыть файл
+	my $suite_fname = File::Spec->catfile($test_dir, "$module\_SUITE.erl");
+	print "suite file: $suite_fname\n";
+	my $suite_fout;
+	open $suite_fout, ">$suite_fname"
+		or die "Can't open $suite_fname file:$!";
+	# вывести зоголовок
+	&generate_suite_mod_head ($suite_fout, $module);
+	# сгенерировать инициализацию перечня групп и тестов
+	&generate_suite_mod_groups ($suite_fout, $module,\@topics);
+	# сгенерировать инициализацию для всего модуля теста
+	&generate_suite_mod_init_suite ($suite_fout, $module);
+	# сгенерировать инициализации для групп
+	&generate_suite_mod_init_group ($suite_fout, $module);
+	&generate_suite_mod_last_init_group ($suite_fout, $module);
+	# сгенерировать окончания для групп
+	&generate_suite_mod_end_group ($suite_fout, $module);
+	&generate_suite_mod_last_end_group ($suite_fout, $module);
+	foreach my $topic (@topics) { 
+		# сгенерировать инициализации для тестов для каждой группы
+		&generate_suite_mod_init_testcase ($suite_fout, $module, $topic);
+		# сгенерировать окончания для тестов для каждой группы
+		&generate_suite_mod_end_testcase ($suite_fout, $module, $topic);
+	}
+	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
+	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
+	# сгенерировать окончание для всего модуля теста
+	&generate_suite_mod_end_suite ($suite_fout, $module);
+	foreach my $topic (@topics) {
+		# сгенеровароть заготовки тестов
+		&generate_suite_mod_fun_clause ($suite_fout, $module, basename $topic);
+	}
+	# закрыть файл
+	close $suite_fout
+		or die "Can't close $suite_fname file:$!";
 }
-# зкрыть файл
-close $test_fout
-	or die "Can't open $test_fname file:$!";
 
-# Файл модуля обработчика каналов, реализующего функционал подсистемы
-#	CARGOROOT/lib/<module>.erl
-#	Алгоритм
-#	открыть файл
-my $handler_fname = File::Spec->catfile($cargo_root_absolute, "$module.erl");
-my $handler_fout;
-open $handler_fout, ">$handler_fname"
-	or die "Can't open $handler_fname file:$!";
-#	вывести заголовок
-&generate_handler_mod_head($handler_fout, $module); 
-#	сгенеировать функци обработчки каналов
-my $last_topic = pop @topics;
-foreach my $topic (@topics) {
-	&generate_handler_mod_fun_clause($handler_fout, $module, $topic);
+unless ($options{"no-test-api"}) {
+	# Файл модуля API функций для тестов
+	#	CARGOROOT/lib/t_<module>.erl
+	# Алгоритм
+	#	открыть файл
+	my $test_fname = File::Spec->catfile($srclib_dir, "t\_$module.erl");
+	print "test file: $test_fname\n";
+	my $test_fout;
+	open $test_fout, ">$test_fname"
+		or die "Can't open $test_fname file:$!";
+	# вывести заголовок
+	&generate_t_mod_head($test_fout, $module);
+	foreach my $topic (@topics) {
+		#	сгенеировать функци API к тестируемому модулoю
+		&generate_t_mod_fun_clause($test_fout, $module, $topic);
+	}
+	# зкрыть файл
+	close $test_fout
+		or die "Can't open $test_fname file:$!";
 }
-&generate_handler_mod_last_fun_clause($handler_fout, $module, $last_topic);
-# вернуть обратно последний топик
-push @topics, $last_topic;
-#	зкрыть файл
-close $handler_fout
-	or die "Can't close $handler_fname file:$!";
 
+unless ($options{"no-handler"}) {
+	# Файл модуля обработчика каналов, реализующего функционал подсистемы
+	#	CARGOROOT/lib/<module>.erl
+	#	Алгоритм
+	#	открыть файл
+	my $handler_fname = File::Spec->catfile($srclib_dir, "$module.erl");
+	print "handler file: $handler_fname\n";
+	my $handler_fout;
+	open $handler_fout, ">$handler_fname"
+		or die "Can't open $handler_fname file:$!";
+	#	вывести заголовок
+	&generate_handler_mod_head($handler_fout, $module); 
+	#	сгенеировать функци обработчки каналов
+	my $last_topic = pop @topics;
+	foreach my $topic (@topics) {
+		&generate_handler_mod_fun_clause($handler_fout, $module, $topic);
+	}
+	&generate_handler_mod_last_fun_clause($handler_fout, $module, $last_topic);
+	# вернуть обратно последний топик
+	push @topics, $last_topic;
+	#	зкрыть файл
+	close $handler_fout
+		or die "Can't close $handler_fname file:$!";
+}
 
 ##
 ## subroutines for generating CARGOROOT/test/<module>_SUITE.erl
