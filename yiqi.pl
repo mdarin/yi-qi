@@ -57,14 +57,26 @@ print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
 
-my $cargo_root_full_path = dirname $0;
+# получить корень проекта карго
+my $cargo_root_relative = $options{"cargo-root"} || dirname $0; 
+# если путь не задать, генерировать себе в корень
+my $cargo_root_absolute = dirname $0;
+#File::Spec->catfile($ENV{'HOME'}, $cargo_root_relative);
+print "cargo-root-relatiove: " . $cargo_root_relative . "\n";
+print "cargo-root-absoulute: " . $cargo_root_absolute . "\n";
+
+my $srclib_dir =  File::Spec->catfile($cargo_root_absolute, File::Spec->catfile("src", "lib"));
+my $test_dir = File::Spec->catfile($cargo_root_absolute, "test");
+
+print "lib: " . $srclib_dir . "\n";
+print "test: " . $test_dir . "\n";
 
 # получить список обработчиков
 # Файл модуля тестирования
 #	CARGOROOT/test/<module>_SUITE.erl
 # Алгоритм:
 # открыть файл
-my $suite_fname = File::Spec->catfile($cargo_root_full_path, "$module\_SUITE.erl");
+my $suite_fname = File::Spec->catfile($cargo_root_absolute, "$module\_SUITE.erl");
 my $suite_fout;
 open $suite_fout, ">$suite_fname"
 	or die "Can't open $suite_fname file:$!";
@@ -102,7 +114,7 @@ close $suite_fout
 #	CARGOROOT/lib/t_<module>.erl
 # Алгоритм
 #	открыть файл
-my $test_fname = File::Spec->catfile($cargo_root_full_path, "t\_$module.erl");
+my $test_fname = File::Spec->catfile($cargo_root_absolute, "t\_$module.erl");
 my $test_fout;
 open $test_fout, ">$test_fname"
 	or die "Can't open $test_fname file:$!";
@@ -120,7 +132,7 @@ close $test_fout
 #	CARGOROOT/lib/<module>.erl
 #	Алгоритм
 #	открыть файл
-my $handler_fname = File::Spec->catfile($cargo_root_full_path, "$module.erl");
+my $handler_fname = File::Spec->catfile($cargo_root_absolute, "$module.erl");
 my $handler_fout;
 open $handler_fout, ">$handler_fname"
 	or die "Can't open $handler_fname file:$!";
