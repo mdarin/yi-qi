@@ -115,7 +115,7 @@ print "test: " . $test_dir . "\n";
 
 unless ($options{"no-suite"}) {
 	# Файл модуля тестирования
-	#	CARGOROOT/test/<module>_SUITE.erl
+	# CARGOROOT/test/<module>_SUITE.erl
 	# Алгоритм:
 	# открыть файл
 	my $suite_fname = File::Spec->catfile($test_dir, "$module\_SUITE.erl");
@@ -158,9 +158,9 @@ unless ($options{"no-suite"}) {
 
 unless ($options{"no-test"}) {
 	# Файл модуля API функций для тестов
-	#	CARGOROOT/lib/t_<module>.erl
+	# CARGOROOT/lib/t_<module>.erl
 	# Алгоритм
-	#	открыть файл
+	# открыть файл
 	my $test_fname = File::Spec->catfile($srclib_dir, "t\_$module.erl");
 	print "test file: $test_fname\n";
 	my $test_fout;
@@ -169,7 +169,7 @@ unless ($options{"no-test"}) {
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
 	foreach my $topic (@topics) {
-		#	сгенеировать функци API к тестируемому модулoю
+		# сгенеировать функци API к тестируемому модулoю
 		&generate_t_mod_fun_clause($test_fout, $module, $topic);
 	}
 	# зкрыть файл
@@ -179,17 +179,17 @@ unless ($options{"no-test"}) {
 
 unless ($options{"no-module"}) {
 	# Файл модуля обработчика каналов, реализующего функционал подсистемы
-	#	CARGOROOT/lib/<module>.erl
-	#	Алгоритм
-	#	открыть файл
+	# CARGOROOT/lib/<module>.erl
+	# Алгоритм
+	# открыть файл
 	my $handler_fname = File::Spec->catfile($srclib_dir, "$module.erl");
 	print "handler file: $handler_fname\n";
 	my $handler_fout;
 	open $handler_fout, ">$handler_fname"
 		or die "Can't open $handler_fname file:$!";
-	#	вывести заголовок
+	# вывести заголовок
 	&generate_handler_mod_head($handler_fout, $module); 
-	#	сгенеировать функци обработчки каналов
+	# сгенеировать функци обработчки каналов
 	my $last_topic = pop @topics;
 	foreach my $topic (@topics) {
 		&generate_handler_mod_fun_clause($handler_fout, $module, $topic);
@@ -197,7 +197,7 @@ unless ($options{"no-module"}) {
 	&generate_handler_mod_last_fun_clause($handler_fout, $module, $last_topic);
 	# вернуть обратно последний топик
 	push @topics, $last_topic;
-	#	зкрыть файл
+	# зкрыть файл
 	close $handler_fout
 		or die "Can't close $handler_fname file:$!";
 }
