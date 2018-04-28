@@ -86,10 +86,43 @@ my $module_suite_dir = File::Spec->catfile($templates_dir, "module_SUITE");
 my $module_dir = File::Spec->catfile($templates_dir, "module");
 
 print "module: $module\n";
-
+my @temp;
+my $singular = ({});
 # получить список обработчиков
 foreach my $topic (@topics) {
 	print "topic: $topic\n";
+	my $fun = basename $topic;
+	print "fun: $fun\n";
+		
+	unless (exists $singular->{$fun}) {
+		$singular->{$fun} = $fun;
+		push @temp, $fun;
+	} else {
+		my $rest = dirname $topic;
+		my $new_fun = &get_prev($rest) . "_" . $fun;
+		print "new fun: $new_fun\n";
+		push @temp, $new_fun; 	
+		$singular->{$new_fun} = $new_fun;
+	}
+}
+
+sub get_prev {
+	my $topic = shift @_;
+	my $prev = basename $topic;
+	my $fun = "";
+	unless ($prev =~ m/[.]+/g) {
+		$fun = $prev;
+	} else {
+		# голобалное имя модуля
+		$fun = $module;
+	}
+	$fun;
+}
+
+@topics = @temp;
+
+foreach my $topic (@topics) {
+	print "~topic: $topic\n";
 }
 
 print "templates: $templates_dir\n";
