@@ -32,9 +32,9 @@ yiqi --module=yiqitest --topics=top1,top2/subtop,top3/subtop3/ssubtop3
 сгенерирует модули и разместит их в корневом каталоге генератора
 
 Основные параметры и команды:
-  no-test-suite - не устанавливать git
-  no-test-api - не клонировать проект
-  no-handler - не генерировать файл обработчика канала 
+  no-suite - не устанавливать git
+  no-test - не клонировать проект
+  no-module - не генерировать файл обработчика канала 
   help - показать это справочное сообщение
   verbose - максимально информативный вывод
   silent - без лишних коментариев
@@ -56,9 +56,9 @@ GetOptions("module=s" => \$options{"module"},
 			"topics=s" => \$options{"topics"},
 			"cargo-root=s" => \$options{"cargo-root"},
 			"log=s" => \$options{"log"},
-			"no-handler" => \$options{"no-handler"},
-			"no-test-api" => \$options{"no-test-api"},
-			"no-test-suite" => \$options{"no-test-suite"},
+			"no-module" => \$options{"no-module"},
+			"no-test" => \$options{"no-test"},
+			"no-suite" => \$options{"no-suite"},
 			"help" => \$options{"help"},
 			"usage" => \$options{"usage"},
 			"version" => \$options{"version"},
@@ -113,7 +113,7 @@ print "lib: " . $srclib_dir . "\n";
 print "test: " . $test_dir . "\n";
 
 
-unless ($options{"no-test-suite"}) {
+unless ($options{"no-suite"}) {
 	# Файл модуля тестирования
 	#	CARGOROOT/test/<module>_SUITE.erl
 	# Алгоритм:
@@ -156,7 +156,7 @@ unless ($options{"no-test-suite"}) {
 		or die "Can't close $suite_fname file:$!";
 }
 
-unless ($options{"no-test-api"}) {
+unless ($options{"no-test"}) {
 	# Файл модуля API функций для тестов
 	#	CARGOROOT/lib/t_<module>.erl
 	# Алгоритм
@@ -177,7 +177,7 @@ unless ($options{"no-test-api"}) {
 		or die "Can't open $test_fname file:$!";
 }
 
-unless ($options{"no-handler"}) {
+unless ($options{"no-module"}) {
 	# Файл модуля обработчика каналов, реализующего функционал подсистемы
 	#	CARGOROOT/lib/<module>.erl
 	#	Алгоритм

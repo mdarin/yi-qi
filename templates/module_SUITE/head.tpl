@@ -12,6 +12,7 @@
 % this header is required
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
+-include_lib("tst.hrl").
 
 -export([all/0]).
 -compile([export_all]).
