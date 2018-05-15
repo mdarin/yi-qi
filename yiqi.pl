@@ -4,7 +4,7 @@
 # vsn: 0.0.1
 # dsc: This is a devtool  
 # crt: Ср апр 18 17:36:10 MSK 2018
-# upd: 
+# upd: Вт май 15 19:29:24 MSK 2018
 # ath: Michael DARIN, Moscow, Russia, (c) 2018
 # lic: gnu>=2, "AS-IS", "NO WARRENTY"
 # cnt: darin.m@tvzavr.ru
@@ -86,7 +86,7 @@ my $module_suite_dir = File::Spec->catfile($templates_dir, "module_SUITE");
 my $module_dir = File::Spec->catfile($templates_dir, "module");
 
 print "module: $module\n";
-my @temp;
+my @funs;
 my $singular = ({});
 # получить список обработчиков
 foreach my $topic (@topics) {
@@ -96,12 +96,12 @@ foreach my $topic (@topics) {
 		
 	unless (exists $singular->{$fun}) {
 		$singular->{$fun} = $fun;
-		push @temp, $fun;
+		push @funs, $fun;
 	} else {
 		my $rest = dirname $topic;
 		my $new_fun = &get_prev($rest) . "_" . $fun;
 		print "new fun: $new_fun\n";
-		push @temp, $new_fun; 	
+		push @funs, $new_fun; 	
 		$singular->{$new_fun} = $new_fun;
 	}
 }
@@ -118,8 +118,6 @@ sub get_prev {
 	}
 	$fun;
 }
-
-@topics = @temp;
 
 foreach my $topic (@topics) {
 	print "~topic: $topic\n";
@@ -159,7 +157,7 @@ unless ($options{"no-suite"}) {
 	# вывести зоголовок
 	&generate_suite_mod_head ($suite_fout, $module);
 	# сгенерировать инициализацию перечня групп и тестов
-	&generate_suite_mod_groups ($suite_fout, $module,\@topics);
+	&generate_suite_mod_groups ($suite_fout, $module,\@funs);
 	# сгенерировать инициализацию для всего модуля теста
 	&generate_suite_mod_init_suite ($suite_fout, $module);
 	# сгенерировать инициализации для групп
@@ -168,9 +166,9 @@ unless ($options{"no-suite"}) {
 	# сгенерировать окончания для групп
 	&generate_suite_mod_end_group ($suite_fout, $module);
 	&generate_suite_mod_last_end_group ($suite_fout, $module);
-	foreach my $topic (@topics) { 
+	foreach my $fun (@funs) { 
 		# сгенерировать инициализации для тестов для каждой группы
-		&generate_suite_mod_init_testcase ($suite_fout, $module, $topic);
+		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
 	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
 	foreach my $topic (@topics) { 
@@ -180,9 +178,9 @@ unless ($options{"no-suite"}) {
 	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
 	# сгенерировать окончание для всего модуля теста
 	&generate_suite_mod_end_suite ($suite_fout, $module);
-	foreach my $topic (@topics) {
+	foreach my $fun (@funs) {
 		# сгенеровароть заготовки тестов
-		&generate_suite_mod_fun_clause ($suite_fout, $module, basename $topic);
+		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun);
 	}
 	# закрыть файл
 	close $suite_fout
@@ -201,9 +199,9 @@ unless ($options{"no-test"}) {
 		or die "Can't open $test_fname file:$!";
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
-	foreach my $topic (@topics) {
+	foreach my $fun (@funs) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $topic);
+		&generate_t_mod_fun_clause($test_fout, $module, $fun);
 	}
 	# зкрыть файл
 	close $test_fout
