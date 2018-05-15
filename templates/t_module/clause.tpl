@@ -3,7 +3,7 @@
 %TODO: Довьте требуетмые аргументы фукнции
 ${function}(Mqtt) -> 
 	Outgoing = <<"${module}/${topic}">>,
-	Incomeing = <<"${module}/res/${topic}">>,
+	Incomeing = <<"res/${module}/${topic}">>,
 	tst:sub(Mqtt, Incomeing),
 	Payload = [
 		%TODO:insert your data here as a proplilst {key, Value} pairs
