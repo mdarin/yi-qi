@@ -35,6 +35,9 @@ move/to
 Эти имена темы каналов или topics появятся в соответсующих файлах
 с вариациями зависящими от контекста
 
+Параметр задаётся БЕЗ пробелов --topics=<topic1>,<topic2>,...,<topicN>
+Пробел ялвяетя разделителем аргументов командной строки
+
 
 > yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
 
