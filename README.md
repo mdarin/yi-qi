@@ -38,8 +38,14 @@ move/to
 Параметр задаётся БЕЗ пробелов! --topics=topic1,topic2,...,topicN
 Пробел ялвяетя разделителем аргументов командной строки
 
-
+это ещё не работает!
 > yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
+
+fullpath = /abs/path/to/cargo
+
+> yiqi.pl --cargo-root=/rel/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
+
+fullpath = HOME + cargo-root
 
 В результате выполнения программы должны появится указанные файлы 
 содеражщие заготовки кода для дальнейшей разработки
