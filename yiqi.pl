@@ -171,9 +171,9 @@ unless ($options{"no-suite"}) {
 		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
 	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
-	foreach my $topic (@topics) { 
+	foreach my $fun (@funs) { 
 		# сгенерировать окончания для тестов для каждой группы
-		&generate_suite_mod_end_testcase ($suite_fout, $module, $topic);
+		&generate_suite_mod_end_testcase ($suite_fout, $module, $fun);
 	}
 	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
 	# сгенерировать окончание для всего модуля теста
