@@ -199,9 +199,9 @@ unless ($options{"no-test"}) {
 		or die "Can't open $test_fname file:$!";
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
-	foreach my $fun (@funs) {
+	foreach my $topic (@topics) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $fun);
+		&generate_t_mod_fun_clause($test_fout, $module, $topic);
 	}
 	# зкрыть файл
 	close $test_fout
