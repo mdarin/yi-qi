@@ -1,5 +1,5 @@
 % MQTT pub:  /<CID>/${module}/${topic}
-% MQTT sub:  /<CID>/${module}/res/${topic}
+% MQTT sub:  /<CID>/res/${module}/${topic}
 %TODO: Довьте требуетмые аргументы фукнции
 ${function}(Mqtt) -> 
 	Outgoing = <<"${module}/${topic}">>,

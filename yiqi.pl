@@ -17,6 +17,8 @@ use File::Spec;
 use Getopt::Long;
 use autodie;
 
+#TODO:наверное нужно добавить более гибкую настройку генерации тестов да и вообще 
+# более гибкую настрйоку :) Генератор Всего или Generator Father
 
 my $usage = q(yiqi {option[=param]}
 );
@@ -34,7 +36,7 @@ yiqi --module=yiqitest --topics=top1,top2/subtop,top3/subtop3/ssubtop3
 Основные параметры и команды:
   no-suite - не устанавливать git
   no-test - не клонировать проект
-  no-module - не генерировать файл обработчика канала 
+  no-handler - не генерировать файл обработчика канала 
   help - показать это справочное сообщение
   verbose - максимально информативный вывод
   silent - без лишних коментариев
@@ -55,10 +57,10 @@ my %options;
 GetOptions("module=s" => \$options{"module"},
 			"topics=s" => \$options{"topics"},
 			"cargo-root=s" => \$options{"cargo-root"},
-			"empty-tests=s", => \$options{"empty-tests"},  # empty tests -> t_module.elr and  test_cases -> module_SUITE.erl
-			"empty-testcases=s", => \$options{"empty-testcases"},  # empty testcases -> module_SUITE.erl 
+			#"empty-tests=s", => \$options{"standalone-tests"},
+			"standalone-testcases=s", => \$options{"standalone-testcases"},
 			"log=s" => \$options{"log"},
-			"no-module" => \$options{"no-module"},
+			"no-handler" => \$options{"no-handler"},
 			"no-test" => \$options{"no-test"},
 			"no-suite" => \$options{"no-suite"},
 			"help" => \$options{"help"},
@@ -78,12 +80,30 @@ die $usage
 	unless defined($options{"module"}) && defined($options{"topics"});
 
 
+##
+## сущности и грамматика их появление описывающая
+#
+#TODO: надо уже генератор пересматривать...
+# $module <- mod_name
+# $topic <- @topics
+# $fun <- @funs
+# $standalone_tcase <- @standalone_tcases
+# $standalone_test <- @standalone_tests
+
+# @t_test <- [$t_name,@t_parts]
+# @suite <- [$suite_name,@suite_parts]
+# @handler <- [$mod_name, @handler_parts]
+
+# @t_parts <- [@template/t_module,module,@topics,@funs,@standalone_tests,@subst_spec]
+# @suite_parts <- [@temlate/module_SUITE,module,@topics,@funs,@standalone_tcases,@subst_spec]
+# @handler_parts <- [@template/module,module,@topics,@subst_spec]
+
+
+
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
-my @empty_tests = split ",", $options{"empty-tests"}
-	if defined($options{"empty-tests"});
-my @empty_testcases = split ",", $options{"empty-testcases"}
-	if defined($options{"empty-testcases"});
+my @standalone_testcases = split ",", $options{"standalone-testcases"} || [];
+my @standalone_tests = @standalone_testcases;
 
 # каталог с шаблонами
 my $templates_dir = File::Spec->catfile(dirname($0), "templates");
@@ -125,23 +145,30 @@ sub get_prev {
 	$fun;
 }
 
+# показать все параметры
 foreach my $topic (@topics) {
-	print "~topic: $topic\n";
+	print " ~> topic: $topic\n";
 }
 
-foreach my $etest (@empty_tests) {
-	print "~etest: $etest\n";
+#foreach my $etest (@empty_tests) {
+#	print " ~> etest: $etest\n";
+#}
+
+
+foreach my $standalone_testcase (@standalone_testcases) {
+	print " ~> standalone_testcase: $standalone_testcase\n";
 }
 
 
-foreach my $etcase (@empty_testcases) {
-	print "~etcase: $etcase\n";
-}
+
 
 print "templates: $templates_dir\n";
 print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
+
+
+
 
 # получить корень проекта карго, если путь не задать, генерировать себе в корень
 my $cargo_root = File::Spec->catfile($ENV{'HOME'},$options{"cargo-root"})
@@ -159,6 +186,9 @@ print "lib: " . $srclib_dir . "\n";
 print "test: " . $test_dir . "\n";
 
 
+
+
+
 unless ($options{"no-suite"}) {
 	# Файл модуля тестирования
 	# CARGOROOT/test/<module>_SUITE.erl
@@ -172,7 +202,7 @@ unless ($options{"no-suite"}) {
 	# вывести зоголовок
 	&generate_suite_mod_head ($suite_fout, $module);
 	# сгенерировать инициализацию перечня групп и тестов
-	&generate_suite_mod_groups ($suite_fout, $module,\@funs);
+	&generate_suite_mod_groups ($suite_fout, $module,\@funs, \@standalone_testcases);
 	# сгенерировать инициализацию для всего модуля теста
 	&generate_suite_mod_init_suite ($suite_fout, $module);
 	# сгенерировать инициализации для групп
@@ -185,9 +215,17 @@ unless ($options{"no-suite"}) {
 		# сгенерировать инициализации для тестов для каждой группы
 		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
 	}
+	foreach my $fun (@standalone_testcases) { 
+		# сгенерировать инициализации для тестов для самостоятельных команд
+		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
+	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
 	foreach my $fun (@funs) { 
 		# сгенерировать окончания для тестов для каждой группы
+		&generate_suite_mod_end_testcase ($suite_fout, $module, $fun);
+	}
+	foreach my $fun (@standalone_testcases) { 
+		# сгенерировать окончания для тестов самостоятельных команд
 		&generate_suite_mod_end_testcase ($suite_fout, $module, $fun);
 	}
 	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
@@ -195,7 +233,11 @@ unless ($options{"no-suite"}) {
 	&generate_suite_mod_end_suite ($suite_fout, $module);
 	foreach my $fun (@funs) {
 		# сгенеровароть заготовки тестов
-		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun);
+		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun, "case_clause.tpl");
+	}
+	foreach my $fun (@standalone_testcases) {
+		# сгенеровароть заготовки тестов
+		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun, "standalone_case_clause.tpl");
 	}
 	# закрыть файл
 	close $suite_fout
@@ -216,14 +258,18 @@ unless ($options{"no-test"}) {
 	&generate_t_mod_head($test_fout, $module);
 	foreach my $fun (@funs) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $fun);
+		&generate_t_mod_fun_clause($test_fout, $module, $fun, "clause.tpl");
+	}
+	# вывести самостоятельные команды(не mqtt)
+	foreach my $fun (@standalone_tests) {
+		&generate_t_mod_fun_clause($test_fout, $module, $fun, "standalone_clause.tpl");
 	}
 	# зкрыть файл
 	close $test_fout
 		or die "Can't open $test_fname file:$!";
 }
 
-unless ($options{"no-module"}) {
+unless ($options{"no-handler"}) {
 	# Файл модуля обработчика каналов, реализующего функционал подсистемы
 	# CARGOROOT/lib/<module>.erl
 	# Алгоритм
@@ -267,7 +313,7 @@ sub generate_suite_mod_head {
 }
 
 sub generate_suite_mod_groups {
-	my($fout, $module, $topics) = @_;
+	my($fout, $module, $topics, $standalone_funs) = @_;
 	my $groups_fname = File::Spec->catfile($module_suite_dir, "groups.tpl");
 	my $fin;
 	open $fin, "<$groups_fname"
@@ -275,7 +321,8 @@ sub generate_suite_mod_groups {
 	map { chomp; 
 		s/\$\{module\}/$module/;
 		if (m/\$\{tescases\}/) {
-			&generate_suite_mod_group_testcases($fout, $topics);
+			# вывести функции для всех топиков и всех самостоятельных команд
+			&generate_suite_mod_group_testcases($fout, $topics, $standalone_funs);
 		} else {
 			print $fout "$_\n";
 		}	
@@ -286,8 +333,13 @@ sub generate_suite_mod_groups {
 
 
 sub generate_suite_mod_group_testcases {
-	my($fout, $topics) = @_;	
-	# перечислить тесты в группе	
+	my($fout, $topics, $standalone_funs) = @_;	
+	# перечислить самостоятельные команды
+	foreach my $standalone_fun (@$standalone_funs) {
+		print $fout "		" . $standalone_fun . "\_ok,\n";
+	}
+	# перечислить тесты в группе
+	# тут есть особый случай, завершающий элемент	
 	my $last_topic = pop @$topics;
 	foreach my $topic (@$topics) {
 		print $fout "		" . basename $topic . "\_ok,\n";
@@ -452,10 +504,10 @@ sub generate_suite_mod_end_suite {
 }
 
 sub generate_suite_mod_fun_clause {
-	my ($fout, $module, $topic) = @_;
+	my ($fout, $module, $topic, $template_fname) = @_;
 	my $function = basename $topic;
 	my $testcase = $function;
-	my $caseclause_fname = File::Spec->catfile($module_suite_dir, "case_clause.tpl");
+	my $caseclause_fname = File::Spec->catfile($module_suite_dir, $template_fname);
 	my $fin;
 	open $fin, "<$caseclause_fname"
 		or die "Can't open $caseclause_fname file:$!";
@@ -490,9 +542,9 @@ sub generate_t_mod_head {
 }
 
 sub generate_t_mod_fun_clause {
-	my ($fout, $module, $topic) = @_;
+	my ($fout, $module, $topic, $template_fname) = @_;
 	my $function = basename $topic;
-	my $clause_fname = File::Spec->catfile($t_module_dir, "clause.tpl");
+	my $clause_fname = File::Spec->catfile($t_module_dir, $template_fname);
 	my $fin;
 	open $fin, "<$clause_fname"
 		or die "Can't open $clause_fname file:$!";
