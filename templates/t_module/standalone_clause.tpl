@@ -4,9 +4,13 @@ ${function}() -> % добавьте свои агрументы
 	% переменная payload строго обязатеьная!
 	% всё что отправляется на сервер помещяется в неё
 	Payload = [
-		%TODO:insert your data here as a proplilst {key, Value} pairs
+		%TODO:insert your data here as a proplilst {key, Value} pairs for instance
 	],
-	Reply = tst:pubr(Mqtt, Outgoing, Payload),
+	% Переменная reply строго обязательна!
+	% Она должно содержать ответ в термах Erlang
+	% M = какой-либо модуль(скорей всего это будет модуль tst
+	% F = какая-либо функция(скорей это будет либо pubr либо post)
+	%FIXME: >> Reply = M:F(Payload),
 	% тест должне возращать какой-то ответ
 	% строка является обязательной!
 	% желательно бы ещё сделать ct:fail()
