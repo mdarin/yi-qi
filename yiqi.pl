@@ -55,6 +55,8 @@ my %options;
 GetOptions("module=s" => \$options{"module"},
 			"topics=s" => \$options{"topics"},
 			"cargo-root=s" => \$options{"cargo-root"},
+			"empty-tests=s", => \$options{"empty-tests"},  # empty tests -> t_module.elr and  test_cases -> module_SUITE.erl
+			"empty-testcases=s", => \$options{"empty-testcases"},  # empty testcases -> module_SUITE.erl 
 			"log=s" => \$options{"log"},
 			"no-module" => \$options{"no-module"},
 			"no-test" => \$options{"no-test"},
@@ -78,6 +80,10 @@ die $usage
 
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
+my @empty_tests = split ",", $options{"empty-tests"}
+	if defined($options{"empty-tests"});
+my @empty_testcases = split ",", $options{"empty-testcases"}
+	if defined($options{"empty-testcases"});
 
 # каталог с шаблонами
 my $templates_dir = File::Spec->catfile(dirname($0), "templates");
@@ -121,6 +127,15 @@ sub get_prev {
 
 foreach my $topic (@topics) {
 	print "~topic: $topic\n";
+}
+
+foreach my $etest (@empty_tests) {
+	print "~etest: $etest\n";
+}
+
+
+foreach my $etcase (@empty_testcases) {
+	print "~etcase: $etcase\n";
 }
 
 print "templates: $templates_dir\n";
