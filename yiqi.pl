@@ -102,7 +102,7 @@ die $usage
 
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
-my @standalone_testcases = split ",", $options{"standalone-testcases"} || [];
+my @standalone_testcases = split ",", $options{"standalone-testcases"} || undef;
 my @standalone_tests = @standalone_testcases;
 
 # каталог с шаблонами
@@ -154,11 +154,9 @@ foreach my $topic (@topics) {
 #	print " ~> etest: $etest\n";
 #}
 
-
-foreach my $standalone_testcase (@standalone_testcases) {
-	print " ~> standalone_testcase: $standalone_testcase\n";
+foreach my $standalone_test (@standalone_tests) {
+	print " ~> standalone_testcase: $standalone_test\n";
 }
-
 
 
 
