@@ -19,7 +19,7 @@
 
 
 % можно заменить на:
-% SavedConfig = ?LOAD,
-% ?SAVE(SavedConfig)
+% {Saver, SavedConfig} = ?config(saved_config, Config) ~ SavedConfig = ?LOAD,
+% {save_config, SaveConfig} ~ ?SAVE(SavedConfig)
 
 

@@ -11,6 +11,12 @@ ${function}() -> % добавьте свои агрументы
 	% M = какой-либо модуль(скорей всего это будет модуль tst
 	% F = какая-либо функция(скорей это будет либо pubr либо post)
 	%FIXME: >> Reply = M:F(Payload),
+	% например сформировать post запрос
+	%Url = "/account/admin_activate_eamil",
+	%Head = [{<<"content-type">>, <<"application/x-www-form-urlencoded">>}],
+	%Path = <<"token=",Token/binary,
+	%        "&state=admin-activation-stage-1">>,
+	%Reply = tst:post(Url, Head, Path),
 	Reply = ok,
 	% тест должен возращать какой-то ответ в термах Erlang
 	% строка является обязательной!
