@@ -72,7 +72,7 @@ fullpath = HOME + cargo-root
 
 Опция no-suite позволяет не создавать common test suite
 ```
-./yiqi.pl no-suite --module=adm_auth --topic=users/list --standalone-testcases=login
+./yiqi.pl --no-suite --module=adm_auth --topic=users/list --standalone-testcases=login
 ```
 
 А опиция no-test заставит генератор проигноврировать этап создания API для теста
