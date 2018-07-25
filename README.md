@@ -58,7 +58,32 @@ fullpath = HOME + cargo-root
 В результате выполнения программы должны появится указанные файлы 
 содеражщие заготовки кода для дальнейшей разработки
 
-для справок, традиционно
+Если требуется дополнить API для теста командами не связанными с MQTT каналом,
+можно воспользоваться такой командой standalone-testcases=login
+после знака равенсва(=) следует спико команад разделённым запятой(,) без пробелов!
+```
+./yiqi.pl --module=adm_auth --topic=users/list --standalone-testcases=login,logout
+```
+
+Вот так, с помощью опиции no-handler, можно не создавать модуль обработчика канала
+```
+./yiqi.pl --no-handler --module=adm_auth --topic=users/list --standalone-testcases=login
+```
+
+Опция no-suite позволяет не создавать common test suite
+```
+./yiqi.pl no-suite --module=adm_auth --topic=users/list --standalone-testcases=login
+```
+
+А опиция no-test заставит генератор проигноврировать этап создания API для теста
+```
+./yiqi.pl --no-test --module=adm_auth --topic=users/list --standalone-testcases=login
+```
+
+
+
+Для справок, традиционно
+
 ```
 > yiqi.pl --help
 ```
