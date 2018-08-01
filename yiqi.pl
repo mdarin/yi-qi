@@ -37,6 +37,7 @@ yiqi --module=yiqitest --topics=top1,top2/subtop,top3/subtop3/ssubtop3
   no-suite - не создавать common test suite 
   no-test - не создавать API для тестов
   no-handler - не создавать обработчик канала 
+	prefix - добавить к имени файла префикс
   help - показать это справочное сообщение
   verbose - максимально информативный вывод
   silent - без лишних коментариев
@@ -60,6 +61,7 @@ GetOptions("module=s" => \$options{"module"},
 			#"empty-tests=s", => \$options{"standalone-tests"},
 			"standalone-testcases=s", => \$options{"standalone-testcases"},
 			"log=s" => \$options{"log"},
+			"prefix=s" => \$options{"prefix"},
 			"no-handler" => \$options{"no-handler"},
 			"no-test" => \$options{"no-test"},
 			"no-suite" => \$options{"no-suite"},
@@ -102,6 +104,7 @@ die $usage
 
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
+#FIXME(darin-m):Use of uninitialized value in split at ./yiqi.pl line 107.
 my @standalone_testcases = split ",", $options{"standalone-testcases"} || undef;
 my @standalone_tests = @standalone_testcases;
 
@@ -158,8 +161,9 @@ foreach my $standalone_test (@standalone_tests) {
 	print " ~> standalone_testcase: $standalone_test\n";
 }
 
-
-
+my $prefix = $options{"prefix"} . "_" || "";
+print "prefix: $prefix\n"
+	if ($prefix ne "");
 print "templates: $templates_dir\n";
 print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
@@ -192,7 +196,7 @@ unless ($options{"no-suite"}) {
 	# CARGOROOT/test/<module>_SUITE.erl
 	# Алгоритм:
 	# открыть файл
-	my $suite_fname = File::Spec->catfile($test_dir, "$module\_SUITE.erl");
+	my $suite_fname = File::Spec->catfile($test_dir, "$prefix$module\_SUITE.erl");
 	print "suite file: $suite_fname\n";
 	my $suite_fout;
 	open $suite_fout, ">$suite_fname"
@@ -247,7 +251,7 @@ unless ($options{"no-test"}) {
 	# CARGOROOT/lib/t_<module>.erl
 	# Алгоритм
 	# открыть файл
-	my $test_fname = File::Spec->catfile($srclib_dir, "t\_$module.erl");
+	my $test_fname = File::Spec->catfile($srclib_dir, "t\_$prefix$module.erl");
 	print "test file: $test_fname\n";
 	my $test_fout;
 	open $test_fout, ">$test_fname"
@@ -272,7 +276,7 @@ unless ($options{"no-handler"}) {
 	# CARGOROOT/lib/<module>.erl
 	# Алгоритм
 	# открыть файл
-	my $handler_fname = File::Spec->catfile($srclib_dir, "$module.erl");
+	my $handler_fname = File::Spec->catfile($srclib_dir, "$prefix$module.erl");
 	print "handler file: $handler_fname\n";
 	my $handler_fout;
 	open $handler_fout, ">$handler_fname"

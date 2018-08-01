@@ -47,11 +47,11 @@ yiqi_etcase_B
 Пробел ялвяетя разделителем аргументов командной строки
 ```
 это ещё не работает!
-> yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
+./yiqi.pl --root=/abs/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from
 
 fullpath = /abs/path/to/cargo
 
-> yiqi.pl --cargo-root=/rel/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from --standalone-testcases=yiqi_etcase_A,yiqi_etcase_B 
+./yiqi.pl --cargo-root=/rel/path/to/cargo --module=yiqitest --topics=insert,delete,update,move/to,move/from --standalone-testcases=yiqi_etcase_A,yiqi_etcase_B 
 
 fullpath = HOME + cargo-root
 ```
@@ -80,6 +80,12 @@ fullpath = HOME + cargo-root
 ./yiqi.pl --no-test --module=adm_auth --topic=users/list --standalone-testcases=login
 ```
 
+Если надо добавить префикс к имени файлу чтобы не ломать имя канала есть параметр prefix.
+Наримре надо файлы t_adm_users.erl adm_users.erl amd_users_SUITE 
+с транками ../users/list, ../users/add and so on.
+```
+./yiqi.pl --cargo-root=relative/path/to/cargo/from/HOME --module=users --topics=list,add --prefix=amd
+```
 
 
 Для справок, традиционно
