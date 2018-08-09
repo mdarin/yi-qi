@@ -161,7 +161,6 @@ foreach my $standalone_test (@standalone_tests) {
 	print " ~> standalone_testcase: $standalone_test\n";
 }
 
-print $options{"prefix"};
 my $prefix = ""; 
 if (defined $options{"prefix"}) {
 	$prefix = $options{"prefix"} . "_";
