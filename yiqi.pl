@@ -161,7 +161,11 @@ foreach my $standalone_test (@standalone_tests) {
 	print " ~> standalone_testcase: $standalone_test\n";
 }
 
-my $prefix = $options{"prefix"} . "_" || "";
+print $options{"prefix"};
+my $prefix = ""; 
+if (defined $options{"prefix"}) {
+	$prefix = $options{"prefix"} . "_";
+}
 print "prefix: $prefix\n"
 	if ($prefix ne "");
 print "templates: $templates_dir\n";
