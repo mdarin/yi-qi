@@ -6,7 +6,7 @@
 %%% wiki page -> [link to wiki or page name]
 %%%%----------------------------------------------
 -module(t_${module}).
--compile([export_all]).
+-compile([{parse_transform, lager_transform}]).
 
 %% Тестовые функции во имя унификации возвращают
 %% ok | {ok,Reply}

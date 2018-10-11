@@ -15,7 +15,7 @@
 -include_lib("tst.hrl").
 
 -export([all/0]).
--compile([export_all]).
+-compile([{parse_transform, lager_transform}]).
 
 
 % можно заменить на:

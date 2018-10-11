@@ -6,7 +6,7 @@
 %%% wiki page -> [link to wiki or page name]
 %%%%----------------------------------------------
 -module(${module}).
--compile([export_all]).
+-compile([{parse_transform, lager_transform}]).
 	
 -include("cargo_error.hrl").
 
