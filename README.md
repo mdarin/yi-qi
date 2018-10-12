@@ -58,6 +58,8 @@ fullpath = HOME + cargo-root
 В результате выполнения программы должны появится указанные файлы 
 содеражщие заготовки кода для дальнейшей разработки
 
+## Тонкие настройки генератора
+
 Если требуется дополнить API для теста командами не связанными с MQTT каналом,
 можно воспользоваться такой командой standalone-testcases=login
 после знака равенсва(=) следует спико команад разделённым запятой(,) без пробелов!
@@ -81,22 +83,27 @@ fullpath = HOME + cargo-root
 ```
 
 Если надо добавить префикс к имени файлу чтобы не ломать имя канала есть параметр prefix.
-Наримре надо файлы t_adm_users.erl adm_users.erl amd_users_SUITE 
+Наример надо файлы t_adm_users.erl adm_users.erl amd_users_SUITE 
 с транками ../users/list, ../users/add and so on.
 ```
 ./yiqi.pl --cargo-root=relative/path/to/cargo/from/HOME --module=users --topics=list,add --prefix=amd
 ```
 
+Если надо сгенерировать только обработчики для указанных топиков без тестов
+Например надо чтобы топики add/prev,add/next,add/cur не включались в тесты сформирует такую команду
+```
+./yiqi.pl --cargo-root=relative/path/to/cargo/from/HOME --module=users --topics=list,add,^add/prev,^add/next,^add/cur,delete
+```
 
 Для справок, традиционно
 
 ```
-> yiqi.pl --help
+./yiqi.pl --help
 ```
 Нет времени объяснять! 
 Скорей, копируй и сразу вставляй команду в командную строку!
 Смотри как жить стало лучше, жить стало веслей!
 
 ```
-> ./yiqi.pl --module=yiqitest --topics=insert,delete,update,move/to,move/from
+./yiqi.pl --module=yiqitest --topics=insert,delete,update,move/to,move/from
 ```

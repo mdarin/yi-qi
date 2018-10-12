@@ -15,8 +15,8 @@
 -include_lib("tst.hrl").
 
 -export([all/0]).
--compile([{parse_transform, lager_transform}]).
-
+%-compile([{parse_transform, lager_transform}]).
+-compile([export_all]).
 
 % можно заменить на:
 % {Saver, SavedConfig} = ?config(saved_config, Config) ~ SavedConfig = ?LOAD,
