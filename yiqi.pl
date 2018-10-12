@@ -100,10 +100,14 @@ die $usage
 # @suite_parts <- [@temlate/module_SUITE,module,@topics,@funs,@standalone_tcases,@subst_spec]
 # @handler_parts <- [@template/module,module,@topics,@subst_spec]
 
+
+
 my $module = $options{"module"};
 my @topics = split ",",$options{"topics"};
-#FIXME(darin-m):Use of uninitialized value in split at ./yiqi.pl line 107.
-my @standalone_testcases = split ",", $options{"standalone-testcases"} || undef;
+my @standalone_testcases;
+if (defined ($options{"standalone-testcases"})) {
+	@standalone_testcases = split ",", $options{"standalone-testcases"} || undef;
+}
 my @standalone_tests = @standalone_testcases;
 
 # каталог с шаблонами
@@ -113,26 +117,26 @@ my $module_suite_dir = File::Spec->catfile($templates_dir, "module_SUITE");
 my $module_dir = File::Spec->catfile($templates_dir, "module");
 
 print "module: $module\n";
+
 my @funs;
 my $singular = ({});
 # получить список обработчиков
 foreach my $topic (@topics) {
 	print "topic: $topic\n";
-	# если нет директивы не генерироватьтесты
-	unless ($topic =~ /^[\^].+/) {
-		my $fun = basename $topic;
-		print "fun: $fun\n";
-			
-		unless (exists $singular->{$fun}) {
-			$singular->{$fun} = $fun;
-			push @funs, $fun;
-		} else {
-			my $rest = dirname $topic;
-			my $new_fun = &get_prev($rest) . "_" . $fun;
-			print "new fun: $new_fun\n";
-			push @funs, $new_fun; 	
-			$singular->{$new_fun} = $new_fun;
-		}
+	# пропустить, если задана директива не генерировать тест
+	next if ($topic =~ /^[\^].+/);
+	my $fun = basename $topic;
+	print "fun: $fun\n";
+		
+	unless (exists $singular->{$fun}) {
+		$singular->{$fun} = $fun;
+		push @funs, $fun;
+	} else {
+		my $rest = dirname $topic;
+		my $new_fun = &get_prev($rest) . "_" . $fun;
+		print "new fun: $new_fun\n";
+		push @funs, $new_fun; 	
+		$singular->{$new_fun} = $new_fun;
 	}
 }
 
@@ -262,9 +266,9 @@ unless ($options{"no-test"}) {
 		or die "Can't open $test_fname file:$!";
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
-	foreach my $topic (@topics) {
+	foreach my $fun (@funs) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl");
+		&generate_t_mod_fun_clause($test_fout, $module, $fun, "clause.tpl");
 	}
 	# вывести самостоятельные команды(не mqtt)
 	foreach my $fun (@standalone_tests) {
@@ -345,7 +349,7 @@ sub generate_suite_mod_group_testcases {
 		print $fout "		" . $standalone_fun . "\_ok,\n";
 	}
 	# перечислить тесты в группе
-	# тут есть особый случай, завершающий элемент
+	# тут есть особый случай, завершающий элемент	
 	my $last_topic = pop @$topics;
 	foreach my $topic (@$topics) {
 		print $fout "		" . basename $topic . "\_ok,\n";
@@ -549,9 +553,6 @@ sub generate_t_mod_head {
 
 sub generate_t_mod_fun_clause {
 	my ($fout, $module, $topic, $template_fname) = @_;
-	# пропустить если для топика не надо генерировать тест
-	return if ($topic =~ /^[\^].+/);
-	# иначе сгенерировать API для теста
 	my $function = basename $topic;
 	my $clause_fname = File::Spec->catfile($t_module_dir, $template_fname);
 	my $fin;
@@ -570,7 +571,7 @@ sub generate_t_mod_fun_clause {
 
 
 ##
-## subroutines for generating CARGOROOT/lib/<module>.erl
+## subroutines for generating CARGOROOT/lib/<module>.er
 #
 
 sub generate_handler_mod_head {
@@ -589,8 +590,6 @@ sub generate_handler_mod_head {
 
 sub generate_handler_mod_fun_clause {
 	my ($fout,$module,$topic) = @_;
-	# удаилить директиву Не генерировать тест
-	$topic =~ s/^[\^]//;
 	my $clause_fname = File::Spec->catfile($module_dir, "clause.tpl");
 	my $fin;
 	open $fin, "<$clause_fname"
@@ -607,8 +606,6 @@ sub generate_handler_mod_fun_clause {
 
 sub generate_handler_mod_last_fun_clause {
 	my ($fout,$module,$topic) = @_;
-	# удаилить директиву Не генерировать тест
-	$topic =~ s/^[\^]//;
 	my $clause_fname = File::Spec->catfile($module_dir, "last_clause.tpl");
 	my $fin;
 	open $fin, "<$clause_fname"
