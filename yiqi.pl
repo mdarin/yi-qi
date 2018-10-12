@@ -17,6 +17,11 @@ use File::Spec;
 use Getopt::Long;
 use autodie;
 
+##
+## HOT FIXME: при формирования api для тестов необходимо передавать и топики и фукнции! 
+##
+
+
 #TODO:наверное нужно добавить более гибкую настройку генерации тестов да и вообще 
 # более гибкую настрйоку :) Генератор Всего или Generator Father
 
@@ -266,9 +271,9 @@ unless ($options{"no-test"}) {
 		or die "Can't open $test_fname file:$!";
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
-	foreach my $fun (@funs) {
+	foreach my $topic (@topics) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $fun, "clause.tpl");
+		&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl");
 	}
 	# вывести самостоятельные команды(не mqtt)
 	foreach my $fun (@standalone_tests) {
@@ -590,6 +595,8 @@ sub generate_handler_mod_head {
 
 sub generate_handler_mod_fun_clause {
 	my ($fout,$module,$topic) = @_;
+	# удаилить директиву Не генерировать тест
+	$topic =~ s/^[\^]//;
 	my $clause_fname = File::Spec->catfile($module_dir, "clause.tpl");
 	my $fin;
 	open $fin, "<$clause_fname"
@@ -606,6 +613,8 @@ sub generate_handler_mod_fun_clause {
 
 sub generate_handler_mod_last_fun_clause {
 	my ($fout,$module,$topic) = @_;
+	# удаилить директиву Не генерировать тест
+	$topic =~ s/^[\^]//;
 	my $clause_fname = File::Spec->catfile($module_dir, "last_clause.tpl");
 	my $fin;
 	open $fin, "<$clause_fname"
