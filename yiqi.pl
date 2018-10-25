@@ -25,6 +25,7 @@ use autodie;
 #TODO:наверное нужно добавить более гибкую настройку генерации тестов да и вообще 
 # более гибкую настрйоку :) Генератор Всего или Generator Father
 
+
 my $usage = q(yiqi {option[=param]}
 );
 my $help = q(yiqi 0.0.1 (amd64)
@@ -188,7 +189,7 @@ print "module: $module_dir\n";
 # получить корень проекта карго, если путь не задать, генерировать себе в корень
 my $cargo_root = File::Spec->catfile($ENV{'HOME'},$options{"cargo-root"})
 	if defined($options{"cargo-root"});
-my $cargo_root_absolute =  $cargo_root || dirname $0; 
+my $cargo_root_absolute =  $cargo_root || dirname $0;
 print "cargo-root: " . $cargo_root_absolute . "\n";
 my $srclib_dir = $cargo_root_absolute;
 my $test_dir = $cargo_root_absolute;
@@ -558,6 +559,8 @@ sub generate_t_mod_head {
 
 sub generate_t_mod_fun_clause {
 	my ($fout, $module, $topic, $template_fname) = @_;
+	# удаилить директиву Не генерировать тест
+	$topic =~ s/^[\^]//;
 	my $function = basename $topic;
 	my $clause_fname = File::Spec->catfile($t_module_dir, $template_fname);
 	my $fin;
