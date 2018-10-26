@@ -15,6 +15,9 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	
 	%TODO: првоерить валидность данных
 	% EXAMPLE: how to creaete validation rules	
+	%Data = #{
+	% ...declare your data as key/value pairs
+	%	},	
 	%Validation = pipe:bind(Data, [fun validate_email/1, fun validate_user/1]),
 	% Reply = case Validation of
 	%   {ok,_} ->
