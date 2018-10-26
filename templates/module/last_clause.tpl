@@ -14,7 +14,25 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	%TODO: получить параметры запроса
 	
 	%TODO: првоерить валидность данных
-
+	% EXAMPLE: how to creaete validation rules	
+	%Validation = pipe:bind(Data, [fun validate_email/1, fun validate_user/1]),
+	% Reply = case Validation of
+	%   {ok,_} ->
+	%     ...
+	%   {error, malformed} ->
+	%   % если формат адреса почты не соответствует требуемому
+	%     {json,common:error(?BADEMAIL) ++ [{email, Email}]};
+	%   {error, unknown} ->
+	%   % если запись с пользователем не нашлась
+	%     {json,common:error(?UNKNOWNUSER) ++ [{email, Email}]};
+	%   _ -> 
+	%   % если позникала какя-ть неопределённость
+	%     {json,common:error()}
+	% end,
+	% функция валидации должна виглядить примерно так:
+	%validate_email(Data) -> 
+	% ...validation steps
+	% {ok, Data} | {error, Reason}
 	%TODO: сформировать ответ
 
 	% ответить 
