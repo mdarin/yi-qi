@@ -14,12 +14,15 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	%TODO: получить параметры запроса
 	
 	%TODO: првоерить валидность данных
-	% EXAMPLE: how to creaete validation rules	
+	% EXAMPLE: how to creaete validation rules
+	% сфомировать набор данных для валидации	
 	%Data = #{
 	% ...declare your data as key/value pairs
-	%	},	
+	%},
+	% применить правила валидации		
 	%Validation = pipe:bind(Data, [fun validate_email/1, fun validate_user/1]),
-	% Reply = case Validation of
+	% сформировать ответ	
+	%Reply = case Validation of
 	%   {ok,_} ->
 	%     ...
 	%   {error, malformed} ->
@@ -36,6 +39,7 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	%validate_email(Data) -> 
 	% ...validation steps
 	% {ok, Data} | {error, Reason}
+
 	%TODO: сформировать ответ
 
 	% ответить 
