@@ -125,6 +125,7 @@ print "module: $module\n";
 
 my @funs;
 my $singular = ({});
+my %topics_funs;
 # получить список обработчиков
 foreach my $topic (@topics) {
 	print "topic: $topic\n";
@@ -134,14 +135,14 @@ foreach my $topic (@topics) {
 	print "fun: $fun\n";
 		
 	unless (exists $singular->{$fun}) {
-		$singular->{$fun} = $fun;
+		$topics_funs{$topic} = $singular->{$fun} = $fun;
 		push @funs, $fun;
 	} else {
 		my $rest = dirname $topic;
 		my $new_fun = &get_prev($rest) . "_" . $fun;
 		print "new fun: $new_fun\n";
 		push @funs, $new_fun; 	
-		$singular->{$new_fun} = $new_fun;
+		$topics_funs{$topic} = $singular->{$new_fun} = $new_fun;
 	}
 }
 
@@ -157,6 +158,12 @@ sub get_prev {
 	}
 	$fun;
 }
+
+# показать таблицу соответствия каналов и функций
+while (my ($topic,$func) = each(%topics_funs)) {
+	print "## topic => " . $topic . " => " . $func . "\n"; 
+}
+
 
 # показать все параметры
 foreach my $topic (@topics) {
@@ -226,18 +233,18 @@ unless ($options{"no-suite"}) {
 	# сгенерировать окончания для групп
 	&generate_suite_mod_end_group ($suite_fout, $module);
 	&generate_suite_mod_last_end_group ($suite_fout, $module);
-	foreach my $fun (@funs) { 
+	foreach my $topic (@topics) { 
 		# сгенерировать инициализации для тестов для каждой группы
-		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
+		&generate_suite_mod_init_testcase ($suite_fout, $module, $topic, \%topics_funs);
 	}
 	foreach my $fun (@standalone_testcases) { 
 		# сгенерировать инициализации для тестов для самостоятельных команд
 		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
 	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
-	foreach my $fun (@funs) { 
+	foreach my $topic (@topics) { 
 		# сгенерировать окончания для тестов для каждой группы
-		&generate_suite_mod_end_testcase ($suite_fout, $module, $fun);
+		&generate_suite_mod_end_testcase ($suite_fout, $module, $topic, \%topics_funs);
 	}
 	foreach my $fun (@standalone_testcases) { 
 		# сгенерировать окончания для тестов самостоятельных команд
@@ -246,9 +253,9 @@ unless ($options{"no-suite"}) {
 	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
 	# сгенерировать окончание для всего модуля теста
 	&generate_suite_mod_end_suite ($suite_fout, $module);
-	foreach my $fun (@funs) {
+	foreach my $topic (@topics) {
 		# сгенеровароть заготовки тестов
-		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun, "case_clause.tpl");
+		&generate_suite_mod_fun_clause ($suite_fout, $module, $topic, "case_clause.tpl", \%topics_funs);
 	}
 	foreach my $fun (@standalone_testcases) {
 		# сгенеровароть заготовки тестов
@@ -273,7 +280,7 @@ unless ($options{"no-test"}) {
 	&generate_t_mod_head($test_fout, $module);
 	foreach my $topic (@topics) {
 		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl");
+		&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl", \%topics_funs);
 	}
 	# вывести самостоятельные команды(не mqtt)
 	foreach my $fun (@standalone_tests) {
@@ -441,8 +448,8 @@ sub generate_suite_mod_last_init_testcase {
 }
 
 sub generate_suite_mod_end_testcase {
-	my($fout, $module, $topic) = @_;
-	my $testcase = basename $topic;
+	my($fout, $module, $topic, $topics_funs) = @_;
+	my $testcase = $topics_funs->{$topic};
 	my $end_fname = File::Spec->catfile($module_suite_dir, "end_testcase.tpl");
 	my $fin;
 	open $fin, "<$end_fname"
@@ -519,8 +526,8 @@ sub generate_suite_mod_end_suite {
 }
 
 sub generate_suite_mod_fun_clause {
-	my ($fout, $module, $topic, $template_fname) = @_;
-	my $function = basename $topic;
+	my ($fout, $module, $topic, $template_fname, $topics_funs) = @_;
+	my $function = $topics_funs->{$topic};
 	my $testcase = $function;
 	my $caseclause_fname = File::Spec->catfile($module_suite_dir, $template_fname);
 	my $fin;
@@ -557,10 +564,10 @@ sub generate_t_mod_head {
 }
 
 sub generate_t_mod_fun_clause {
-	my ($fout, $module, $topic, $template_fname) = @_;
+	my ($fout, $module, $topic, $template_fname, $topics_funs) = @_;
 	# удаилить директиву Не генерировать тест
 	$topic =~ s/^[\^]//;
-	my $function = basename $topic;
+	my $function = $topics_funs->{$topic};
 	my $clause_fname = File::Spec->catfile($t_module_dir, $template_fname);
 	my $fin;
 	open $fin, "<$clause_fname"
