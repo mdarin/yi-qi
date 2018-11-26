@@ -234,8 +234,10 @@ unless ($options{"no-suite"}) {
 	&generate_suite_mod_end_group ($suite_fout, $module);
 	&generate_suite_mod_last_end_group ($suite_fout, $module);
 	foreach my $topic (@topics) { 
-		# сгенерировать инициализации для тестов для каждой группы
-		&generate_suite_mod_init_testcase ($suite_fout, $module, $topic, \%topics_funs);
+		unless ($topic =~ m/^[\^]/) {
+			# сгенерировать инициализации для тестов для каждой группы
+			&generate_suite_mod_init_testcase ($suite_fout, $module, $topic, \%topics_funs);
+		}
 	}
 	foreach my $fun (@standalone_testcases) { 
 		# сгенерировать инициализации для тестов для самостоятельных команд
@@ -243,8 +245,10 @@ unless ($options{"no-suite"}) {
 	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
 	foreach my $topic (@topics) { 
-		# сгенерировать окончания для тестов для каждой группы
-		&generate_suite_mod_end_testcase ($suite_fout, $module, $topic, \%topics_funs);
+		unless ($topic =~ m/^[\^]/) {
+			# сгенерировать окончания для тестов для каждой группы
+			&generate_suite_mod_end_testcase ($suite_fout, $module, $topic, \%topics_funs);
+		}
 	}
 	foreach my $fun (@standalone_testcases) { 
 		# сгенерировать окончания для тестов самостоятельных команд
@@ -254,8 +258,10 @@ unless ($options{"no-suite"}) {
 	# сгенерировать окончание для всего модуля теста
 	&generate_suite_mod_end_suite ($suite_fout, $module);
 	foreach my $topic (@topics) {
-		# сгенеровароть заготовки тестов
-		&generate_suite_mod_fun_clause ($suite_fout, $module, $topic, "case_clause.tpl", \%topics_funs);
+		unless ($topic =~ m/^[\^]/) {
+			# сгенеровароть заготовки тестов
+			&generate_suite_mod_fun_clause ($suite_fout, $module, $topic, "case_clause.tpl", \%topics_funs);
+		}
 	}
 	foreach my $fun (@standalone_testcases) {
 		# сгенеровароть заготовки тестов
@@ -279,8 +285,10 @@ unless ($options{"no-test"}) {
 	# вывести заголовок
 	&generate_t_mod_head($test_fout, $module);
 	foreach my $topic (@topics) {
-		# сгенеировать функци API к тестируемому модулoю
-		&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl", \%topics_funs);
+		unless ($topic =~ m/^[\^]/) {
+			# сгенеировать функци API к тестируемому модулoю
+			&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl", \%topics_funs);
+		}
 	}
 	# вывести самостоятельные команды(не mqtt)
 	foreach my $fun (@standalone_tests) {
