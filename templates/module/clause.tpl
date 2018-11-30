@@ -26,6 +26,8 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	%Reply = case Validation of
 	%   {ok,_} ->
 	%     ...
+	%     Result = get_result(ParentId),
+	%     common:ok() ++ [{any_formed_as_proplist, Result}];
 	%   {error, malformed} ->
 	%   % если формат адреса почты не соответствует требуемому
 	%     {json,common:error(?BADEMAIL) ++ [{email, Email}]};
