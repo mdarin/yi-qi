@@ -6,7 +6,7 @@
 # crt: Ср апр 18 17:36:10 MSK 2018
 # upd: Вт май 15 19:29:24 MSK 2018
 # ath: Michael DARIN, Moscow, Russia, (c) 2018
-# lic: gnu>=2, "AS-IS", "NO WARRENTY"
+# lic: Apache License Version 2.0, "AS-IS", "NO WARRENTY"
 # cnt: darin.m@tvzavr.ru
 # 
 ##
