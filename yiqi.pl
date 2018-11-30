@@ -222,7 +222,7 @@ unless ($options{"no-suite"}) {
 	open $suite_fout, ">$suite_fname"
 		or die "Can't open $suite_fname file:$!";
 	# вывести зоголовок
-	&generate_suite_mod_head ($suite_fout, $module);
+	&generate_suite_mod_head ($suite_fout, "$prefix$module");
 	# сгенерировать инициализацию перечня групп и тестов
 	&generate_suite_mod_groups ($suite_fout, $module,\@funs, \@standalone_testcases);
 	# сгенерировать инициализацию для всего модуля теста
@@ -283,7 +283,7 @@ unless ($options{"no-test"}) {
 	open $test_fout, ">$test_fname"
 		or die "Can't open $test_fname file:$!";
 	# вывести заголовок
-	&generate_t_mod_head($test_fout, $module);
+	&generate_t_mod_head($test_fout, "$prefix$module");
 	foreach my $topic (@topics) {
 		unless ($topic =~ m/^[\^]/) {
 			# сгенеировать функци API к тестируемому модулoю
@@ -310,7 +310,7 @@ unless ($options{"no-handler"}) {
 	open $handler_fout, ">$handler_fname"
 		or die "Can't open $handler_fname file:$!";
 	# вывести заголовок
-	&generate_handler_mod_head($handler_fout, $module); 
+	&generate_handler_mod_head($handler_fout, "$prefix$module"); 
 	# сгенеировать функци обработчки каналов
 	my $last_topic = pop @topics;
 	foreach my $topic (@topics) {

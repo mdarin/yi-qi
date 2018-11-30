@@ -12,7 +12,8 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	ParentId = boss_session:get_session_data(SessionID, parent_id),
 
 	%TODO: получить параметры запроса
-	
+	%EXAMPLE: Trucker = proplists:get_value(trucker, Payload),	
+
 	%TODO: првоерить валидность данных
 	% EXAMPLE: how to creaete validation rules
 	% сфомировать набор данных для валидации	
@@ -41,8 +42,9 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	% {ok, Data} | {error, Reason}
 
 	%TODO: сформировать ответ
+	% EXAMPLE: Result = get_result(ParentId),
 
 	% ответить 
-	Reply = common:ok();
+	Reply = common:ok(); %EXAMPLE: ++ [{any_formed_as_proplist, Result}]
 
 	
