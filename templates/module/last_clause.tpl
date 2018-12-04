@@ -47,7 +47,7 @@ message(SessionID, <<"${topic}">> = Topic, Payload) ->
 	% EXAMPLE: Result = get_result(ParentId),
 
 	% ответить 
-	Reply = common:ok(); %EXAMPLE: ++ [{any_formed_as_proplist, Result}]
+	Reply = common:ok(). %EXAMPLE: ++ [{any_formed_as_proplist, Result}]
 	%% ^^^^^^^^ завершающий обработчик ^^^^^^^^^
 	
 	
