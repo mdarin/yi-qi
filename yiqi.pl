@@ -222,9 +222,9 @@ unless ($options{"no-suite"}) {
 	open $suite_fout, ">$suite_fname"
 		or die "Can't open $suite_fname file:$!";
 	# вывести зоголовок
-	&generate_suite_mod_head ($suite_fout, "$prefix$module");
+	&generate_suite_mod_head ($suite_fout, "$prefix$module", \%topics_funs);
 	# сгенерировать инициализацию перечня групп и тестов
-	&generate_suite_mod_groups ($suite_fout, $module,\@funs, \@standalone_testcases);
+	&generate_suite_mod_groups ($suite_fout, "$prefix$module",\@standalone_tests, \@standalone_testcases);
 	# сгенерировать инициализацию для всего модуля теста
 	&generate_suite_mod_init_suite ($suite_fout, $module);
 	# сгенерировать инициализации для групп
@@ -233,39 +233,47 @@ unless ($options{"no-suite"}) {
 	# сгенерировать окончания для групп
 	&generate_suite_mod_end_group ($suite_fout, $module);
 	&generate_suite_mod_last_end_group ($suite_fout, $module);
+
 	foreach my $topic (@topics) { 
 		unless ($topic =~ m/^[\^]/) {
 			# сгенерировать инициализации для тестов для каждой группы
 			&generate_suite_mod_init_testcase ($suite_fout, $module, $topic, \%topics_funs);
 		}
 	}
-	foreach my $fun (@standalone_testcases) { 
+
+	foreach my $topic (@standalone_tests) { 
 		# сгенерировать инициализации для тестов для самостоятельных команд
-		&generate_suite_mod_init_testcase ($suite_fout, $module, $fun);
+		my %h = ($topic => basename $topic);
+		&generate_suite_mod_init_testcase ($suite_fout, $module, $topic, \%h);
 	}
 	&generate_suite_mod_last_init_testcase ($suite_fout, $module);
+
 	foreach my $topic (@topics) { 
 		unless ($topic =~ m/^[\^]/) {
 			# сгенерировать окончания для тестов для каждой группы
 			&generate_suite_mod_end_testcase ($suite_fout, $module, $topic, \%topics_funs);
 		}
 	}
-	foreach my $fun (@standalone_testcases) { 
+
+	foreach my $topic (@standalone_tests) { 
 		# сгенерировать окончания для тестов самостоятельных команд
-		&generate_suite_mod_end_testcase ($suite_fout, $module, $fun);
+		my %h = ($topic => basename $topic);
+		&generate_suite_mod_end_testcase ($suite_fout, "$prefix$module", $topic, \%h);
 	}
 	&generate_suite_mod_last_end_testcase ($suite_fout, $module);
+
 	# сгенерировать окончание для всего модуля теста
 	&generate_suite_mod_end_suite ($suite_fout, $module);
 	foreach my $topic (@topics) {
 		unless ($topic =~ m/^[\^]/) {
 			# сгенеровароть заготовки тестов
-			&generate_suite_mod_fun_clause ($suite_fout, $module, $topic, "case_clause.tpl", \%topics_funs);
+			&generate_suite_mod_fun_clause ($suite_fout, "$prefix$module", $topic, "case_clause.tpl", \%topics_funs);
 		}
 	}
-	foreach my $fun (@standalone_testcases) {
+	foreach my $topic (@standalone_testcases) {
 		# сгенеровароть заготовки тестов
-		&generate_suite_mod_fun_clause ($suite_fout, $module, $fun, "standalone_case_clause.tpl");
+		my %h = ($topic => basename $topic);
+		&generate_suite_mod_fun_clause ($suite_fout, "$prefix$module", $topic, "standalone_case_clause.tpl", \%h);
 	}
 	# закрыть файл
 	close $suite_fout
@@ -287,12 +295,13 @@ unless ($options{"no-test"}) {
 	foreach my $topic (@topics) {
 		unless ($topic =~ m/^[\^]/) {
 			# сгенеировать функци API к тестируемому модулoю
-			&generate_t_mod_fun_clause($test_fout, $module, $topic, "clause.tpl", \%topics_funs);
+			&generate_t_mod_fun_clause($test_fout, "$prefix$module", $topic, "clause.tpl", \%topics_funs);
 		}
 	}
 	# вывести самостоятельные команды(не mqtt)
-	foreach my $fun (@standalone_tests) {
-		&generate_t_mod_fun_clause($test_fout, $module, $fun, "standalone_clause.tpl");
+	foreach my $topic (@standalone_testcases) {
+		my %h = ($topic => basename $topic);
+		&generate_t_mod_fun_clause($test_fout, "$prefix$module", $topic, "standalone_clause.tpl", \%h);
 	}
 	# зкрыть файл
 	close $test_fout
