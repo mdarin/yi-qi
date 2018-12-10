@@ -228,8 +228,8 @@ unless ($options{"no-suite"}) {
 		or die "Can't open $suite_fname file:$!";
 	# вывести зоголовок
 	&generate_suite_mod_head ($suite_fout, "$prefix$module", \%topics_funs);
-	# сгенерировать инициализацию перечня групп и тестов
-	&generate_suite_mod_groups ($suite_fout, "$prefix$module",\@standalone_tests, \@standalone_testcases);
+	# сгенерировать инициализацию перечня групп и тестов %FIXME: @funs надобы заменить...
+	&generate_suite_mod_groups ($suite_fout, "$prefix$module", \@funs, \@standalone_testcases);
 	# сгенерировать инициализацию для всего модуля теста
 	&generate_suite_mod_init_suite ($suite_fout, $module);
 	# сгенерировать инициализации для групп
