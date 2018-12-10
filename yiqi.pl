@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 #** ------------------------------------------------------------------
 # nam: Yi qi - Pattern generator for CargoNet project 
-# vsn: 0.0.1
+# vsn: 0.5.11
 # dsc: This is a devtool  
 # crt: Ср апр 18 17:36:10 MSK 2018
-# upd: Вт май 15 19:29:24 MSK 2018
+# upd: Пт дек  7 07:52:00 MSK 2018
 # ath: Michael DARIN, Moscow, Russia, (c) 2018
 # lic: Apache License Version 2.0, "AS-IS", "NO WARRENTY"
 # cnt: darin.m@tvzavr.ru
@@ -120,6 +120,7 @@ my $templates_dir = File::Spec->catfile(dirname($0), "templates");
 my $t_module_dir = File::Spec->catfile($templates_dir, "t_module");
 my $module_suite_dir = File::Spec->catfile($templates_dir, "module_SUITE");
 my $module_dir = File::Spec->catfile($templates_dir, "module");
+my $module_doc_dir = File::Spec->catfile($templates_dir, "module_doc"); 
 
 print "module: $module\n";
 
@@ -188,6 +189,7 @@ print "templates: $templates_dir\n";
 print "t_module: $t_module_dir\n";
 print "module_SUITE: $module_suite_dir\n";
 print "module: $module_dir\n";
+print "module_doc: $module_doc_dir\n";
 
 
 
@@ -199,13 +201,16 @@ my $cargo_root_absolute =  $cargo_root || dirname $0;
 print "cargo-root: " . $cargo_root_absolute . "\n";
 my $srclib_dir = $cargo_root_absolute;
 my $test_dir = $cargo_root_absolute;
+my $doc_dir = $cargo_root_absolute;
 if (defined($cargo_root)) {
 	$srclib_dir =  File::Spec->catfile($cargo_root_absolute,"src/lib"); 
 			#File::Spec->catfile("src", "lib")); муторно слишком..
 	$test_dir = File::Spec->catfile($cargo_root_absolute, "test");
+	$doc_dir = File::Spec->catfile($cargo_root_absolute, "doc");
 }
 print "lib: " . $srclib_dir . "\n";
 print "test: " . $test_dir . "\n";
+print "doc: " . $doc_dir . "\n";
 
 
 
@@ -332,6 +337,34 @@ unless ($options{"no-handler"}) {
 	close $handler_fout
 		or die "Can't close $handler_fname file:$!";
 }
+
+
+#unless ($options{"no-handler"}) {
+	# Файл спецификации интерфейса модуля обработчика каналов, 
+	# реализующего функционал подсистемы
+	# CARGOROOT/doc/<module>.MD
+	# Алгоритм
+	# открыть файл
+	my $doc_fname = File::Spec->catfile($doc_dir, "$prefix$module.MD");
+	print "doc spec file: $doc_fname\n";
+	my $doc_fout;
+	open $doc_fout, ">$doc_fname"
+		or die "Can't open $doc_fname file:$!";
+	# вывести заголовок
+	&generate_doc_mod_head($doc_fout, "$prefix$module"); 
+	# сгенеировать функци обработчки каналов
+	foreach my $topic (@topics) {
+		&generate_doc_mod_fun_clause($doc_fout, $module, $topic);
+	}
+	# зкрыть файл
+	close $doc_fout
+		or die "Can't close $doc_fname file:$!";
+#}
+
+
+
+
+
 
 ##
 ## subroutines for generating CARGOROOT/test/<module>_SUITE.erl
@@ -602,7 +635,7 @@ sub generate_t_mod_fun_clause {
 
 
 ##
-## subroutines for generating CARGOROOT/lib/<module>.er
+## subroutines for generating CARGOROOT/lib/<module>.erl
 #
 
 sub generate_handler_mod_head {
@@ -642,6 +675,43 @@ sub generate_handler_mod_last_fun_clause {
 	# удаилить директиву Не генерировать тест
 	$topic =~ s/^[\^]//;
 	my $clause_fname = File::Spec->catfile($module_dir, "last_clause.tpl");
+	my $fin;
+	open $fin, "<$clause_fname"
+		or die "Can't open $clause_fname file:$!";
+	map { chomp; 
+		#TODO: хэш и цикл
+		s/\$\{module\}/$module/;
+		s/\S\{topic\}/$topic/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $clause_fname file:$!";
+}
+
+
+##
+## subroutines for generating CARGOROOT/doc/<module>.MD
+#
+
+sub generate_doc_mod_head {
+	my ($fout,$module) = @_;
+	my $head_fname = File::Spec->catfile($module_doc_dir, "head.tpl");
+	my $fin;
+	open $fin, "<$head_fname"
+		or die "Can't open $head_fname file:$!";
+	map { chomp; 
+		s/\$\{module\}/$module/;
+		print $fout "$_\n";	
+	} <$fin>;
+	close $fin
+		or die "Can't closse $head_fname file:$!";
+}
+
+sub generate_doc_mod_fun_clause {
+	my ($fout,$module,$topic) = @_;
+	# удаилить директиву Не генерировать тест
+	$topic =~ s/^[\^]//;
+	my $clause_fname = File::Spec->catfile($module_doc_dir, "clause.tpl");
 	my $fin;
 	open $fin, "<$clause_fname"
 		or die "Can't open $clause_fname file:$!";
