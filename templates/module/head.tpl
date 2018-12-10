@@ -3,7 +3,7 @@
 %%% Description:
 %%% Author:
 %%% Autogen: Yi qi
-%%% wiki page -> [link to wiki or page name]
+%%% wiki page -> [doc/${module}.MD   link to wiki or page name]
 %%%%----------------------------------------------
 -module(${module}).
 %-compile([{parse_transform, lager_transform}]).
